@@ -1,0 +1,244 @@
+/* ─── Variáveis ─────────────────────────────────────────────── */
+:root {
+    --verde: #005844;
+    --verde-claro: #58A561;
+    --lima: #B7C922;
+    --tangerina: #C3630A;
+    --branco: #fff;
+    --grafite: #5C5B60;
+    --btn-font: 2.2vh;
+    --base-speed: 0.7s;
+}
+
+/* ─── Container principal ───────────────────────────────────── */
+.gameContent {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--verde);
+}
+
+/* ─── Tela base ─────────────────────────────────────────────── */
+.tela {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slideInBottom var(--base-speed) ease-in-out;
+}
+
+.overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3vh;
+    padding: 4vh 6vw;
+    width: 88vw;
+    text-align: center;
+}
+
+/* ─── Cores por etapa ───────────────────────────────────────── */
+.telaStart        { background-color: var(--verde); }
+.telaApresentacao { background-color: var(--verde); }
+.telaQuiz         { background-color: #0C357F; }
+.telaSucesso      { background-color: var(--verde-claro); }
+.telaRoleta       { background-color: var(--verde); }
+.telaFalha        { background-color: var(--tangerina); }
+
+/* ─── Start ─────────────────────────────────────────────────── */
+.logoArea { margin-bottom: 1vh; }
+
+.logoTexto {
+    font-size: 5vh;
+    font-weight: 900;
+    color: var(--branco);
+    margin: 0;
+}
+
+.textoInicio {
+    font-size: 2.2vh;
+    color: var(--branco);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Apresentação ──────────────────────────────────────────── */
+.textoApresentacao {
+    font-size: 2.5vh;
+    color: var(--branco);
+    font-weight: 500;
+    margin: 0;
+}
+
+.formArea { width: 100%; }
+
+.inputGame {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.5vh 2vw;
+    font-size: 3.5vh;
+    text-align: center;
+    border: none;
+    border-radius: 1vh;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--grafite);
+    outline: none;
+    letter-spacing: 0.2em;
+}
+
+.erroTexto {
+    color: #FFD700;
+    font-size: 1.8vh;
+    margin: 0;
+}
+
+.avisoTexto {
+    font-size: 1.4vh;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+/* ─── Quiz ──────────────────────────────────────────────────── */
+.questionArea {
+    width: 100%;
+    text-align: left;
+}
+
+.numeroPergunta {
+    font-size: 1.6vh;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 1vh;
+    font-weight: 500;
+}
+
+.textoPergunta {
+    font-size: 2.2vh;
+    color: var(--branco);
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.respostasArea {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2vh;
+}
+
+.linhaResposta {
+    display: flex;
+    align-items: center;
+    gap: 1.5vw;
+    background: rgba(255, 255, 255, 0.1);
+    border: 0.3vh solid rgba(255, 255, 255, 0.2);
+    border-radius: 1vh;
+    padding: 1.2vh 2vw;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 1.9vh;
+    color: var(--branco);
+    text-align: left;
+}
+
+.linhaResposta input[type='radio'] {
+    accent-color: var(--verde-claro);
+    width: 2vh;
+    height: 2vh;
+    flex-shrink: 0;
+}
+
+.linhaResposta.selecionada {
+    background: rgba(88, 165, 97, 0.3);
+    border-color: var(--verde-claro);
+}
+
+/* ─── Sucesso / Falha ───────────────────────────────────────── */
+.textoResultado h2 {
+    font-size: 4vh;
+    font-weight: 800;
+    color: var(--branco);
+    margin: 0 0 1vh;
+}
+
+.textoResultado p {
+    font-size: 2vh;
+    color: var(--branco);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Botões ─────────────────────────────────────────────────  */
+.botaoArea {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.btnGame {
+    position: relative;
+    padding: 1.5vh 8vw;
+    background-color: var(--verde-claro);
+    color: var(--verde);
+    font-size: var(--btn-font);
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btnGame::after {
+    content: '';
+    position: absolute;
+    inset: -0.5vh;
+    border-radius: 1.5vh;
+    border: 0.3vh solid var(--verde-claro);
+    opacity: 0.5;
+}
+
+.btnGame:hover {
+    background-color: var(--verde);
+    color: var(--branco);
+}
+
+.btnGame:disabled {
+    background-color: #888;
+    color: var(--branco);
+    cursor: not-allowed;
+}
+
+.btnBranco {
+    background-color: var(--branco) !important;
+    color: var(--tangerina) !important;
+}
+
+.btnBranco::after { border-color: var(--branco) !important; }
+
+/* ─── Erro global ────────────────────────────────────────────  */
+.erroGlobal {
+    position: fixed;
+    top: 2vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--tangerina);
+    color: var(--branco);
+    padding: 1.5vh 4vw;
+    border-radius: 1vh;
+    z-index: 100;
+    text-align: center;
+    font-size: 1.8vh;
+}
+
+/* ─── Animações ──────────────────────────────────────────────  */
+@keyframes slideInBottom {
+    from { opacity: 0; transform: translateY(4vh); }
+    to   { opacity: 1; transform: translateY(0); }
+}

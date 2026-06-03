@@ -1,0 +1,120 @@
+.roletaPlace {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: conic-gradient(from 225deg, #0C357F, #2BF6A5);
+}
+
+/* ─── Roda ─────────────────────────────────────────────────── */
+.circle {
+    position: absolute;
+    left: 50vw;
+    top: 52vh;
+    transform: translate(-50%, -50%);
+    height: 88vw;
+    width: 88vw;
+    border-radius: 50%;
+}
+
+/* ─── Ponteiro ──────────────────────────────────────────────── */
+.ponteiro {
+    position: absolute;
+    left: 50%;
+    top: calc(52vh - 44vw - 1.5vh);
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 2.5vw solid transparent;
+    border-right: 2.5vw solid transparent;
+    border-top: 5vw solid white;
+    z-index: 10;
+    filter: drop-shadow(0 0.3vh 0.6vh rgba(0,0,0,0.5));
+}
+
+/* ─── Centro ────────────────────────────────────────────────── */
+.centro {
+    position: absolute;
+    left: 50vw;
+    top: 52vh;
+    transform: translate(-50%, -50%);
+    height: 5vw;
+    width: 5vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 30%, #ccc 100%);
+    z-index: 5;
+    box-shadow: 0 0 0 0.5vw rgba(255,255,255,0.3);
+}
+
+/* ─── Labels dos setores ────────────────────────────────────── */
+.setorLabel {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    pointer-events: none;
+    width: 14vw;
+    text-align: center;
+}
+
+.labelNome {
+    color: white;
+    font-size: 1.8vh;
+    font-weight: 700;
+    line-height: 1.2;
+    text-shadow: 0 0.2vh 0.4vh rgba(0,0,0,0.6);
+    display: block;
+}
+
+.labelSub {
+    color: rgba(255,255,255,0.85);
+    font-size: 1.2vh;
+    font-weight: 600;
+    line-height: 1.2;
+    text-shadow: 0 0.2vh 0.4vh rgba(0,0,0,0.6);
+    display: block;
+}
+
+/* ─── Botão ──────────────────────────────────────────────────  */
+.botaoArea {
+    position: absolute;
+    bottom: 6vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.btnGirar {
+    position: relative;
+    padding: 1.5vh 8vw;
+    background-color: #58A561;
+    color: #005844;
+    font-size: 2.2vh;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 1vh;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btnGirar::after {
+    content: '';
+    position: absolute;
+    inset: -0.5vh;
+    border-radius: 1.5vh;
+    border: 0.3vh solid #58A561;
+    opacity: 0.5;
+}
+
+.btnGirar:hover:not(:disabled) {
+    background-color: #005844;
+    color: white;
+}
+
+.btnGirar:disabled {
+    background-color: #888;
+    color: white;
+    cursor: not-allowed;
+}
