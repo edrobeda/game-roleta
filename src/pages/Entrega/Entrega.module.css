@@ -1,0 +1,303 @@
+/* ─── Login ──────────────────────────────────────────────────── */
+.loginContainer {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f1923;
+}
+
+.loginCard {
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 1.2vh;
+    padding: 4vh 4vw;
+    width: 88vw;
+    max-width: 380px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.loginTitulo {
+    font-size: 2.6vh;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.4vh;
+}
+
+.loginSub {
+    font-size: 1.4vh;
+    color: #58A561;
+    margin: 0 0 3vh;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5vh;
+}
+
+.loginInput {
+    background: #0f1923;
+    border: 1px solid #2a3a4a;
+    border-radius: 0.8vh;
+    padding: 1.2vh 1.5vw;
+    font-size: 1.8vh;
+    color: #e0e0e0;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.loginInput:focus { border-color: #58A561; }
+
+.loginErro {
+    color: #ff6b6b;
+    font-size: 1.5vh;
+    margin: 0;
+}
+
+.loginBtn {
+    padding: 1.4vh;
+    background: #58A561;
+    color: #005844;
+    font-size: 1.8vh;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 0.8vh;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.loginBtn:hover    { background: #488B53; color: #fff; }
+.loginBtn:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+/* ─── Wrap / Header ───────────────────────────────────────────── */
+.wrap {
+    min-height: 100vh;
+    background: #0f1923;
+    color: #e0e0e0;
+    font-size: 1.6vh;
+    animation: fadeIn 0.3s ease;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+    padding: 1.5vh 2vw;
+    background: #1a2634;
+    border-bottom: 1px solid #2a3a4a;
+}
+
+.headerDot {
+    width: 1vh;
+    height: 1vh;
+    border-radius: 50%;
+    background: #58A561;
+    flex-shrink: 0;
+}
+
+.headerTitulo {
+    flex: 1;
+    font-size: 2vh;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.btnSair {
+    background: transparent;
+    border: 1px solid #2a3a4a;
+    color: #888;
+    font-size: 1.4vh;
+    padding: 0.6vh 1.5vw;
+    border-radius: 0.6vh;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnSair:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+/* ─── Main ────────────────────────────────────────────────────── */
+.main {
+    max-width: 680px;
+    margin: 3vh auto;
+    padding: 0 2vw;
+}
+
+/* ─── Busca ───────────────────────────────────────────────────── */
+.busca {
+    display: flex;
+    gap: 1vw;
+    margin-bottom: 1.5vh;
+}
+
+.buscaInput {
+    flex: 1;
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 0.8vh;
+    padding: 1.2vh 1.5vw;
+    font-size: 1.8vh;
+    color: #e0e0e0;
+    outline: none;
+    font-family: monospace;
+    transition: border-color 0.2s;
+}
+
+.buscaInput:focus { border-color: #58A561; }
+
+.btnBuscar {
+    background: #58A561;
+    color: #005844;
+    font-size: 1.6vh;
+    font-weight: 700;
+    padding: 0 2vw;
+    border: none;
+    border-radius: 0.8vh;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.btnBuscar:hover    { background: #488B53; color: #fff; }
+.btnBuscar:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+.btnCamera {
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 0.8vh;
+    padding: 0 1.2vw;
+    font-size: 2.2vh;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.btnCameraAtiva { border-color: #58A561; }
+
+/* ─── Câmera ──────────────────────────────────────────────────── */
+.cameraBox {
+    margin-bottom: 1.5vh;
+    text-align: center;
+}
+
+.cameraVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 1vh;
+    border: 2px solid #2a3a4a;
+}
+
+.cameraDica {
+    font-size: 1.4vh;
+    color: #888;
+    margin: 0.5vh 0 0;
+}
+
+/* ─── Card de resultado ───────────────────────────────────────── */
+.card {
+    background: #1a2634;
+    border: 1px solid #2a3a4a;
+    border-radius: 1.2vh;
+    padding: 2vh 2vw;
+    animation: fadeIn 0.25s ease;
+}
+
+.cardTopo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5vh;
+    padding-bottom: 1.5vh;
+    border-bottom: 1px solid #2a3a4a;
+}
+
+.cardCodigo {
+    font-size: 2vh;
+    font-weight: 800;
+    color: #fff;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 1vh;
+    margin-bottom: 1.5vh;
+}
+
+.linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 2vw;
+    font-size: 1.5vh;
+}
+
+.linha span   { color: #888; white-space: nowrap; }
+.linha strong { color: #e0e0e0; text-align: right; }
+
+.mono { font-family: monospace; }
+
+/* ─── Ações ───────────────────────────────────────────────────── */
+.acoes {
+    display: flex;
+    gap: 1vw;
+    margin-top: 1vh;
+}
+
+.btnEntregar {
+    flex: 1;
+    padding: 1.2vh;
+    background: #58A561;
+    color: #fff;
+    font-size: 1.6vh;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.8vh;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btnEntregar:hover    { background: #488B53; }
+.btnEntregar:disabled { background: #444; color: #888; cursor: not-allowed; }
+
+.btnCancelar {
+    padding: 1.2vh 2vw;
+    background: transparent;
+    border: 1px solid #2a3a4a;
+    color: #888;
+    font-size: 1.5vh;
+    border-radius: 0.8vh;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btnCancelar:hover { border-color: #ff6b6b; color: #ff6b6b; }
+
+/* ─── Feedback ────────────────────────────────────────────────── */
+.sucesso {
+    color: #58A561;
+    font-size: 1.6vh;
+    font-weight: 600;
+    margin: 1vh 0 0;
+    text-align: center;
+}
+
+.erro {
+    color: #ff6b6b;
+    font-size: 1.5vh;
+    margin: 1vh 0 0;
+    text-align: center;
+}
+
+/* ─── Animação ────────────────────────────────────────────────── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(1.5vh); }
+    to   { opacity: 1; transform: translateY(0); }
+}

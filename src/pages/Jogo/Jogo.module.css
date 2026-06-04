@@ -242,3 +242,25 @@
     from { opacity: 0; transform: translateY(4vh); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.04); }
+}
+
+/* Pulse no botão principal nas telas de Start e Sucesso */
+.telaStart .btnGame,
+.telaSucesso .btnGame {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Fade nas telas de resultado */
+.telaSucesso,
+.telaFalha {
+    animation: fadeIn 0.5s ease-in-out;
+}

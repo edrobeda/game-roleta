@@ -30,38 +30,56 @@ function TelaStart({ onAvancar, playBotao }) {
     )
 }
 
-// ─── Etapa 2: Validação de CPF ────────────────────────────────
+// ─── Etapa 2: Validação de CPF ou telefone ───────────────────
 function TelaApresentacao({ onValidado, playBotao }) {
-    const [cpf, setCpf] = useState('')
-    const [erro, setErro] = useState('')
+    const [valor, setValor]           = useState('')
+    const [tipo, setTipo]             = useState('cpf') // 'cpf' | 'tel'
+    const [erro, setErro]             = useState('')
     const [carregando, setCarregando] = useState(false)
 
-    function formatarCpf(valor) {
-        return valor
-            .replace(/\D/g, '')
-            .slice(0, 11)
+    // telefone: 10 dígitos (sem 9) ou começa com '('
+    function detectarTipo(v) {
+        const d = v.replace(/\D/g, '')
+        if (v.startsWith('(') || d.length === 10) return 'tel'
+        return 'cpf'
+    }
+
+    function aplicarMascara(v) {
+        const t = detectarTipo(v)
+        const d = v.replace(/\D/g, '')
+        if (t === 'tel') return d.slice(0, 11)
+            .replace(/(\d{2})(\d)/, '($1) $2')
+            .replace(/(\d{5})(\d{1,4})$/, '$1-$2')
+        return d.slice(0, 11)
             .replace(/(\d{3})(\d)/, '$1.$2')
             .replace(/(\d{3})(\d)/, '$1.$2')
             .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
     }
 
+    function handleChange(e) {
+        const novo = e.target.value
+        setTipo(detectarTipo(novo))
+        setValor(aplicarMascara(novo))
+    }
+
     async function handleContinuar() {
         setErro('')
-        if (!cpf) return
+        if (!valor) return
         playBotao()
 
-        // CPF de desenvolvimento — bypassa validação e banco
-        if (cpf.replace(/\D/g, '') === '55555555555') {
+        // Modo desenvolvimento — CPF 555
+        if (valor.replace(/\D/g, '') === '55555555555') {
             onValidado({ id: null, nome: 'Dev Teste' })
             return
         }
 
         setCarregando(true)
         try {
-            const { data } = await api.post('/api/cliente/validar', { cpf })
+            const payload = tipo === 'tel' ? { telefone: valor } : { cpf: valor }
+            const { data } = await api.post('/api/cliente/validar', payload)
             onValidado(data)
         } catch (err) {
-            setErro(err.response?.data?.erro || 'Erro ao validar CPF.')
+            setErro(err.response?.data?.erro || 'Erro ao validar.')
         } finally {
             setCarregando(false)
         }
@@ -70,14 +88,14 @@ function TelaApresentacao({ onValidado, playBotao }) {
     return (
         <div className={`${styles.tela} ${styles.telaApresentacao}`}>
             <div className={styles.overlay}>
-                <p className={styles.textoApresentacao}>Insira o CPF cadastrado</p>
+                <p className={styles.textoApresentacao}>Insira o CPF ou telefone cadastrado</p>
                 <div className={styles.formArea}>
                     <input
                         className={styles.inputGame}
                         type='text'
-                        placeholder='CPF'
-                        value={cpf}
-                        onChange={(e) => setCpf(formatarCpf(e.target.value))}
+                        placeholder={tipo === 'tel' ? 'Telefone' : 'CPF'}
+                        value={valor}
+                        onChange={handleChange}
                         autoComplete='off'
                     />
                 </div>

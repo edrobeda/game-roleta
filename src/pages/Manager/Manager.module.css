@@ -647,3 +647,53 @@
 
 .entregaErro   { color: #ff6b6b; font-size: 1.4vh; margin: 0; }
 .entregaSucesso { color: #58A561; font-size: 1.6vh; font-weight: 600; margin: 0; }
+
+.btnEmail {
+    background: transparent;
+    border: 1px solid #2a3a4a;
+    color: #B7C922;
+    font-size: 1.3vh;
+    padding: 0.4vh 0.8vw;
+    border-radius: 0.5vh;
+    cursor: pointer;
+    margin-right: 0.5vw;
+    transition: all 0.2s;
+}
+
+.btnEmail:hover { border-color: #B7C922; background: rgba(183,201,34,.1); }
+
+/* ─── Tablet (max-width: 1024px) ─────────────────────────────── */
+@media (max-width: 1024px) {
+    .cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .abas {
+        flex-wrap: wrap;
+        gap: 0.5vh;
+    }
+
+    .aba {
+        flex: 1 1 40%;
+        text-align: center;
+    }
+
+    .tableWrap {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 640px;
+    }
+
+    .header {
+        flex-wrap: wrap;
+        gap: 1vh;
+    }
+
+    .headerAcoes {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+}

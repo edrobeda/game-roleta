@@ -362,6 +362,17 @@ function TabEntrega() {
 function TabelaClientes({ clientes, onAtualizar }) {
     const [adicionando, setAdicionando] = useState(false)
 
+    async function enviarEmail(clienteId) {
+        if (!confirm('Enviar email para este participante?')) return
+        try {
+            await api.post(`/api/email/enviar/${clienteId}`, {}, authHeader())
+            alert('Email enviado com sucesso!')
+            onAtualizar()
+        } catch (err) {
+            alert(err.response?.data?.erro || 'Erro ao enviar email.')
+        }
+    }
+
     async function remover(id) {
         if (!confirm('Remover este cliente?')) return
         try {
@@ -432,6 +443,16 @@ function TabelaClientes({ clientes, onAtualizar }) {
                                 <td className={styles.mono}>{c.jogado_em ?? '—'}</td>
                                 <td className={styles.mono}>{c.entregue_em ?? '—'}</td>
                                 <td className={styles.centro}>
+                                    {c.email && ['premio_disponivel', 'premio_entregue'].includes(c.status) && (
+                                        <button
+                                            className={styles.btnEmail}
+                                            onClick={() => enviarEmail(c.id)}
+                                            title={c.email_enviado ? 'Email já enviado — reenviar?' : 'Enviar email com código'}
+                                            style={{ opacity: c.email_enviado ? 0.5 : 1 }}
+                                        >
+                                            {c.email_enviado ? '✉ ✓' : '✉'}
+                                        </button>
+                                    )}
                                     <button className={styles.btnRemover} onClick={() => remover(c.id)}>
                                         Remover
                                     </button>
