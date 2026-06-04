@@ -17,6 +17,9 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Credentials (never commit)
+credentials.md
+
 # Backend
 server/node_modules/
 
