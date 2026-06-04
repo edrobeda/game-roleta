@@ -56,7 +56,8 @@ router.get('/clientes', auth, async (req, res) => {
                 pr.subnome AS premio_sub,
                 TO_CHAR(p.jogado_em,   'DD/MM/YYYY HH24:MI') AS jogado_em,
                 TO_CHAR(p.entregue_em, 'DD/MM/YYYY HH24:MI') AS entregue_em,
-                p.operador
+                p.operador,
+                p.email_enviado
             FROM clientes c
             LEFT JOIN partidas p  ON p.cliente_id = c.id
             LEFT JOIN premios  pr ON pr.id = p.premio_id

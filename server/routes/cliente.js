@@ -32,25 +32,46 @@ router.post('/', async (req, res) => {
     }
 })
 
-// POST /api/cliente/validar — verifica CPF existe e ainda não jogou
+// POST /api/cliente/validar — verifica CPF ou telefone existe e ainda não jogou
 router.post('/validar', async (req, res) => {
-    const { cpf } = req.body
-    if (!cpf) return res.status(400).json({ erro: 'CPF obrigatório.' })
+    const { cpf, telefone } = req.body
 
-    const cpfLimpo = cpf.replace(/\D/g, '')
+    if (!cpf && !telefone) {
+        return res.status(400).json({ erro: 'CPF ou telefone obrigatório.' })
+    }
+
+    let query, param
+
+    if (cpf) {
+        const cpfLimpo = cpf.replace(/\D/g, '')
+        if (cpfLimpo.length !== 11) {
+            return res.status(400).json({ erro: 'CPF inválido.' })
+        }
+        query = `SELECT c.id, c.nome, COUNT(p.id) AS partidas
+                 FROM clientes c
+                 LEFT JOIN partidas p ON p.cliente_id = c.id
+                 WHERE c.cpf = $1
+                 GROUP BY c.id, c.nome`
+        param = cpfLimpo
+    } else {
+        const telLimpo = telefone.replace(/\D/g, '')
+        if (telLimpo.length < 10) {
+            return res.status(400).json({ erro: 'Telefone inválido.' })
+        }
+        query = `SELECT c.id, c.nome, COUNT(p.id) AS partidas
+                 FROM clientes c
+                 LEFT JOIN partidas p ON p.cliente_id = c.id
+                 WHERE c.telefone = $1
+                 GROUP BY c.id, c.nome`
+        param = telLimpo
+    }
 
     try {
-        const result = await pool.query(
-            `SELECT c.id, c.nome, COUNT(p.id) AS partidas
-             FROM clientes c
-             LEFT JOIN partidas p ON p.cliente_id = c.id
-             WHERE c.cpf = $1
-             GROUP BY c.id, c.nome`,
-            [cpfLimpo]
-        )
+        const result = await pool.query(query, [param])
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ erro: 'CPF não cadastrado.' })
+            const campo = cpf ? 'CPF' : 'Telefone'
+            return res.status(404).json({ erro: `${campo} não cadastrado.` })
         }
 
         const cliente = result.rows[0]
@@ -60,7 +81,7 @@ router.post('/validar', async (req, res) => {
 
         res.json({ id: cliente.id, nome: cliente.nome })
     } catch (err) {
-        console.error('Erro ao validar CPF:', err.message)
+        console.error('Erro ao validar:', err.message)
         res.status(500).json({ erro: 'Erro interno.' })
     }
 })

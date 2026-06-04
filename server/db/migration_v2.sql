@@ -20,7 +20,9 @@ ALTER TABLE quiz ADD CONSTRAINT quiz_correta_check CHECK (correta BETWEEN 1 AND 
 
 -- ── partidas ──────────────────────────────────────────────────
 ALTER TABLE partidas ADD COLUMN IF NOT EXISTS status      VARCHAR(30) DEFAULT 'jogando';
-ALTER TABLE partidas ADD COLUMN IF NOT EXISTS codigo      VARCHAR(20) UNIQUE;
+ALTER TABLE partidas ADD COLUMN IF NOT EXISTS codigo      VARCHAR(20);
+ALTER TABLE partidas DROP CONSTRAINT IF EXISTS partidas_codigo_key;
+ALTER TABLE partidas ADD CONSTRAINT partidas_codigo_key UNIQUE (codigo);
 ALTER TABLE partidas ADD COLUMN IF NOT EXISTS entregue_em TIMESTAMP;
 ALTER TABLE partidas ADD COLUMN IF NOT EXISTS operador    VARCHAR(255);
 -- email_enviado já existe no schema original; linha abaixo é segura de rodar mesmo assim
