@@ -3,7 +3,8 @@ import jsQR from 'jsqr'
 import api from '../../services/api'
 import styles from './Entrega.module.css'
 
-const TOKEN_KEY = 'entrega_token'
+const TOKEN_KEY    = 'entrega_token'
+const OPERADOR_KEY = 'entrega_operador'
 
 const STATUS_LABEL = {
     cadastrado:        { label: 'Aguardando',        cor: '#888'    },
@@ -18,17 +19,20 @@ function entregaHeader() {
 
 // ─── Login ────────────────────────────────────────────────────
 function TelaLogin({ onLogin }) {
+    const [nome, setNome]             = useState('')
     const [senha, setSenha]           = useState('')
     const [erro, setErro]             = useState('')
     const [carregando, setCarregando] = useState(false)
 
     async function handleSubmit(e) {
         e.preventDefault()
+        if (!nome.trim()) { setErro('Informe seu nome.'); return }
         setErro('')
         setCarregando(true)
         try {
             const { data } = await api.post('/api/entrega/auth', { senha })
             sessionStorage.setItem(TOKEN_KEY, data.token)
+            sessionStorage.setItem(OPERADOR_KEY, nome.trim())
             onLogin()
         } catch (err) {
             setErro(err.response?.data?.erro || 'Senha incorreta.')
@@ -43,8 +47,10 @@ function TelaLogin({ onLogin }) {
                 <h1 className={styles.loginTitulo}>Entrega de Prêmios</h1>
                 <p className={styles.loginSub}>Balcão de Retirada</p>
                 <form onSubmit={handleSubmit} className={styles.loginForm}>
+                    <input className={styles.loginInput} type='text' placeholder='Seu nome'
+                        value={nome} onChange={e => setNome(e.target.value)} required autoFocus autoComplete='off' />
                     <input className={styles.loginInput} type='password' placeholder='Senha'
-                        value={senha} onChange={e => setSenha(e.target.value)} required autoFocus />
+                        value={senha} onChange={e => setSenha(e.target.value)} required />
                     {erro && <p className={styles.loginErro}>{erro}</p>}
                     <button className={styles.loginBtn} type='submit' disabled={carregando}>
                         {carregando ? 'Entrando...' : 'ENTRAR'}
@@ -57,9 +63,9 @@ function TelaLogin({ onLogin }) {
 
 // ─── Busca e confirmação ──────────────────────────────────────
 function TelaBusca({ onLogout }) {
+    const operador                    = sessionStorage.getItem(OPERADOR_KEY) || ''
     const [codigo, setCodigo]         = useState('')
     const [partida, setPartida]       = useState(null)
-    const [operador, setOperador]     = useState('')
     const [erro, setErro]             = useState('')
     const [msg, setMsg]               = useState('')
     const [buscando, setBuscando]         = useState(false)
@@ -88,7 +94,6 @@ function TelaBusca({ onLogout }) {
     }
 
     async function confirmar() {
-        if (!operador.trim()) { setErro('Informe o nome do operador.'); return }
         setConfirmando(true)
         setErro('')
         try {
@@ -150,8 +155,9 @@ function TelaBusca({ onLogout }) {
             <header className={styles.header}>
                 <span className={styles.headerDot} />
                 <h1 className={styles.headerTitulo}>Entrega de Prêmios</h1>
+                <span style={{ fontSize: '1.4vh', color: '#aaa' }}>Operador: <strong style={{ color: '#fff' }}>{operador}</strong></span>
                 <button className={styles.btnSair}
-                    onClick={() => { sessionStorage.removeItem(TOKEN_KEY); onLogout() }}>
+                    onClick={() => { sessionStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(OPERADOR_KEY); onLogout() }}>
                     Sair
                 </button>
             </header>
@@ -232,21 +238,12 @@ function TelaBusca({ onLogout }) {
                         {erro && <p className={styles.erro}>{erro}</p>}
 
                         {partida.status === 'premio_disponivel' && !msg && (
-                            <>
-                                <input
-                                    className={styles.buscaInput}
-                                    placeholder='Nome do operador *'
-                                    value={operador}
-                                    onChange={e => setOperador(e.target.value)}
-                                    style={{ marginTop: '1.5vh' }}
-                                />
-                                <div className={styles.acoes}>
-                                    <button className={styles.btnEntregar} onClick={confirmar} disabled={confirmando}>
-                                        {confirmando ? 'Confirmando...' : '✓ Entregar'}
-                                    </button>
-                                    <button className={styles.btnCancelar} onClick={cancelar}>Cancelar</button>
-                                </div>
-                            </>
+                            <div className={styles.acoes} style={{ marginTop: '1.5vh' }}>
+                                <button className={styles.btnEntregar} onClick={confirmar} disabled={confirmando}>
+                                    {confirmando ? 'Confirmando...' : '✓ Entregar'}
+                                </button>
+                                <button className={styles.btnCancelar} onClick={cancelar}>Cancelar</button>
+                            </div>
                         )}
 
                         {(partida.status !== 'premio_disponivel' || msg) && (

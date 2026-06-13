@@ -2,9 +2,11 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../db/connection')
 
-// POST /api/cliente — cadastrar novo cliente
+const TENANT_ID = parseInt(process.env.TENANT_ID || '2')
+
+// POST /api/cliente — cadastrar novo participante
 router.post('/', async (req, res) => {
-    const { nome, cpf, email, telefone, perfil } = req.body
+    const { nome, cpf, telefone, email, perfil } = req.body
 
     if (!nome || !cpf) {
         return res.status(400).json({ erro: 'Nome e CPF são obrigatórios.' })
@@ -16,23 +18,27 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const existente = await pool.query('SELECT id FROM clientes WHERE cpf = $1', [cpfLimpo])
+        const existente = await pool.query(
+            'SELECT id FROM clientes WHERE cpf = $1 AND tenant_id = $2',
+            [cpfLimpo, TENANT_ID]
+        )
         if (existente.rows.length > 0) {
             return res.status(409).json({ erro: 'CPF já cadastrado.' })
         }
 
         const result = await pool.query(
-            'INSERT INTO clientes (nome, cpf, email, telefone, perfil) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-            [nome, cpfLimpo, email || null, telefone || null, perfil || null]
+            `INSERT INTO clientes (nome, cpf, email, perfil, telefone, tenant_id)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+            [nome, cpfLimpo, email || '', perfil || '', telefone || null, TENANT_ID]
         )
         res.status(201).json({ id: result.rows[0].id })
     } catch (err) {
-        console.error('Erro ao cadastrar cliente:', err.message)
+        console.error('Erro ao cadastrar:', err.message)
         res.status(500).json({ erro: 'Erro interno.' })
     }
 })
 
-// POST /api/cliente/validar — verifica CPF ou telefone existe e ainda não jogou
+// POST /api/cliente/validar — verifica CPF ou telefone existe e ainda não fez palpite
 router.post('/validar', async (req, res) => {
     const { cpf, telefone } = req.body
 
@@ -47,27 +53,25 @@ router.post('/validar', async (req, res) => {
         if (cpfLimpo.length !== 11) {
             return res.status(400).json({ erro: 'CPF inválido.' })
         }
-        query = `SELECT c.id, c.nome, COUNT(p.id) AS partidas
+        query = `SELECT c.id, c.nome,
+                        (SELECT COUNT(*) FROM partidas p WHERE p.cliente_id = c.id AND p.tenant_id = $2) AS partidas
                  FROM clientes c
-                 LEFT JOIN partidas p ON p.cliente_id = c.id
-                 WHERE c.cpf = $1
-                 GROUP BY c.id, c.nome`
+                 WHERE c.cpf = $1 AND c.tenant_id = $2`
         param = cpfLimpo
     } else {
         const telLimpo = telefone.replace(/\D/g, '')
         if (telLimpo.length < 10) {
             return res.status(400).json({ erro: 'Telefone inválido.' })
         }
-        query = `SELECT c.id, c.nome, COUNT(p.id) AS partidas
+        query = `SELECT c.id, c.nome,
+                        (SELECT COUNT(*) FROM partidas p WHERE p.cliente_id = c.id AND p.tenant_id = $2) AS partidas
                  FROM clientes c
-                 LEFT JOIN partidas p ON p.cliente_id = c.id
-                 WHERE c.telefone = $1
-                 GROUP BY c.id, c.nome`
+                 WHERE c.telefone = $1 AND c.tenant_id = $2`
         param = telLimpo
     }
 
     try {
-        const result = await pool.query(query, [param])
+        const result = await pool.query(query, [param, TENANT_ID])
 
         if (result.rows.length === 0) {
             const campo = cpf ? 'CPF' : 'Telefone'
@@ -98,17 +102,18 @@ router.get('/status/:cpf', async (req, res) => {
                 p.status,
                 p.codigo,
                 p.quiz_acertos,
+                p.params,
                 p.jogado_em,
                 p.entregue_em,
                 p.operador,
                 pr.nome       AS premio_nome,
                 pr.subnome    AS premio_sub
              FROM clientes c
-             LEFT JOIN partidas p  ON p.cliente_id = c.id
+             LEFT JOIN partidas p  ON p.cliente_id = c.id AND p.tenant_id = $2
              LEFT JOIN premios  pr ON pr.id = p.premio_id
-             WHERE c.cpf = $1
+             WHERE c.cpf = $1 AND c.tenant_id = $2
              LIMIT 1`,
-            [cpfLimpo]
+            [cpfLimpo, TENANT_ID]
         )
 
         if (result.rows.length === 0) {
@@ -118,20 +123,16 @@ router.get('/status/:cpf', async (req, res) => {
         const row = result.rows[0]
 
         res.json({
-            cliente: {
-                id:   row.id,
-                nome: row.nome,
-                cpf:  row.cpf,
-            },
+            cliente: { id: row.id, nome: row.nome, cpf: row.cpf },
             partida: row.partida_id ? {
-                status:       row.status,
-                codigo:       row.codigo,
-                quiz_acertos: row.quiz_acertos,
-                jogado_em:    row.jogado_em,
-                entregue_em:  row.entregue_em,
-                operador:     row.operador,
-                premio_nome:  row.premio_nome,
-                premio_sub:   row.premio_sub,
+                status:      row.status,
+                codigo:      row.codigo,
+                jogado_em:   row.jogado_em,
+                entregue_em: row.entregue_em,
+                operador:    row.operador,
+                premio_nome: row.premio_nome,
+                premio_sub:  row.premio_sub,
+                params:      row.params,
             } : null,
         })
     } catch (err) {

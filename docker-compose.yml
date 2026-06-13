@@ -1,0 +1,40 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+        VITE_API_TOKEN: ${VITE_API_TOKEN}
+    container_name: DK_GAME_VETNIL
+    restart: unless-stopped
+    networks:
+      - docker-base_default
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: DK_GAME_VETNIL_API
+    restart: unless-stopped
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME:-mydb}
+      TENANT_ID: ${TENANT_ID:-2}
+      PORT: 3001
+      JWT_SECRET: ${JWT_SECRET}
+      MANAGER_USER: ${MANAGER_USER}
+      MANAGER_PASS: ${MANAGER_PASS}
+      ENTREGA_PASS: ${ENTREGA_PASS}
+    networks:
+      - docker-base_default
+      - eventify_network
+
+networks:
+  docker-base_default:
+    external: true
+  eventify_network:
+    external: true

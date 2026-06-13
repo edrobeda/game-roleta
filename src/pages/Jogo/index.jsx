@@ -1,12 +1,26 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import api from '../../services/api'
 import Roleta from '../../components/Roleta'
 import ModalPremio from '../../components/ModalPremio'
 import useSom from '../../hooks/useSom'
 import styles from './Jogo.module.css'
 
-function shuffle(arr) {
-    return [...arr].sort(() => Math.random() - 0.5)
+const PERFIS = [
+    'Agrônomo', 'Criador/Proprietário de Animais', 'Estudante de Veterinária',
+    'Lojista', 'Tratador de Cavalos', 'Veterinário de Equinos', 'Zootecnista', 'Outros',
+]
+
+function formatarCpf(v) {
+    return v.replace(/\D/g, '').slice(0, 11)
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+}
+
+function formatarTel(v) {
+    return v.replace(/\D/g, '').slice(0, 11)
+        .replace(/(\d{2})(\d)/, '($1) $2')
+        .replace(/(\d{5})(\d{1,4})$/, '$1-$2')
 }
 
 // ─── Etapa 1: Start ───────────────────────────────────────────
@@ -30,56 +44,36 @@ function TelaStart({ onAvancar, playBotao }) {
     )
 }
 
-// ─── Etapa 2: Validação de CPF ou telefone ───────────────────
-function TelaApresentacao({ onValidado, playBotao }) {
-    const [valor, setValor]           = useState('')
-    const [tipo, setTipo]             = useState('cpf') // 'cpf' | 'tel'
+// ─── Etapa 2: Identificação por CPF ──────────────────────────
+function TelaIdentificacao({ onValidado, onNaoEncontrado, playBotao }) {
+    const [cpf, setCpf]               = useState('')
     const [erro, setErro]             = useState('')
     const [carregando, setCarregando] = useState(false)
 
-    // telefone: 10 dígitos (sem 9) ou começa com '('
-    function detectarTipo(v) {
-        const d = v.replace(/\D/g, '')
-        if (v.startsWith('(') || d.length === 10) return 'tel'
-        return 'cpf'
-    }
-
-    function aplicarMascara(v) {
-        const t = detectarTipo(v)
-        const d = v.replace(/\D/g, '')
-        if (t === 'tel') return d.slice(0, 11)
-            .replace(/(\d{2})(\d)/, '($1) $2')
-            .replace(/(\d{5})(\d{1,4})$/, '$1-$2')
-        return d.slice(0, 11)
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d)/, '$1.$2')
-            .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-    }
-
-    function handleChange(e) {
-        const novo = e.target.value
-        setTipo(detectarTipo(novo))
-        setValor(aplicarMascara(novo))
-    }
-
     async function handleContinuar() {
         setErro('')
-        if (!valor) return
+        const limpo = cpf.replace(/\D/g, '')
+        if (!limpo) return
         playBotao()
 
-        // Modo desenvolvimento — CPF 555
-        if (valor.replace(/\D/g, '') === '55555555555') {
+        // Modo dev
+        if (limpo === '55555555555') {
             onValidado({ id: null, nome: 'Dev Teste' })
             return
         }
 
         setCarregando(true)
         try {
-            const payload = tipo === 'tel' ? { telefone: valor } : { cpf: valor }
-            const { data } = await api.post('/api/cliente/validar', payload)
+            const { data } = await api.post('/api/cliente/validar', { cpf })
             onValidado(data)
         } catch (err) {
-            setErro(err.response?.data?.erro || 'Erro ao validar.')
+            const status = err.response?.status
+            if (status === 404) {
+                // Não cadastrado → vai para o form com CPF preenchido
+                onNaoEncontrado(cpf)
+            } else {
+                setErro(err.response?.data?.erro || 'Erro ao validar.')
+            }
         } finally {
             setCarregando(false)
         }
@@ -88,15 +82,16 @@ function TelaApresentacao({ onValidado, playBotao }) {
     return (
         <div className={`${styles.tela} ${styles.telaApresentacao}`}>
             <div className={styles.overlay}>
-                <p className={styles.textoApresentacao}>Insira o CPF ou telefone cadastrado</p>
+                <p className={styles.textoApresentacao}>Insira seu CPF para começar</p>
                 <div className={styles.formArea}>
                     <input
                         className={styles.inputGame}
                         type='text'
-                        placeholder={tipo === 'tel' ? 'Telefone' : 'CPF'}
-                        value={valor}
-                        onChange={handleChange}
+                        placeholder='000.000.000-00'
+                        value={cpf}
+                        onChange={e => setCpf(formatarCpf(e.target.value))}
                         autoComplete='off'
+                        inputMode='numeric'
                     />
                 </div>
                 {erro && <p className={styles.erroTexto}>{erro}</p>}
@@ -109,80 +104,135 @@ function TelaApresentacao({ onValidado, playBotao }) {
                         {carregando ? 'Verificando...' : 'CONTINUAR'}
                     </button>
                 </div>
-                <p className={styles.avisoTexto}>
-                    O cadastro deve ser feito via página de cadastramento
-                </p>
             </div>
         </div>
     )
 }
 
-// ─── Etapa 3: Quiz ────────────────────────────────────────────
-function TelaQuiz({ perguntas, onFinalizar, playSelecao, playBotao, modoTeste }) {
-    const [indice, setIndice] = useState(0)
-    const [acertos, setAcertos] = useState(0)
-    const [respostaSelecionada, setRespostaSelecionada] = useState(null)
-    const [respostasEmbaralhadas, setRespostasEmbaralhadas] = useState([])
+// ─── Etapa 3: Cadastro (CPF não encontrado) ───────────────────
+function TelaCadastro({ cpfInicial, onCadastrado, playBotao }) {
+    const [form, setForm] = useState({
+        nome: '', cpf: cpfInicial || '', telefone: '', email: '', perfil: '',
+    })
+    const [erro, setErro]             = useState('')
+    const [carregando, setCarregando] = useState(false)
 
-    useEffect(() => {
-        if (perguntas[indice]) {
-            const embaralhadas = shuffle(perguntas[indice].respostas)
-            setRespostasEmbaralhadas(embaralhadas)
-            setRespostaSelecionada(modoTeste ? (embaralhadas.find(r => r.correta) ?? null) : null)
+    function handleChange(e) {
+        const { name, value } = e.target
+        setForm(prev => ({
+            ...prev,
+            [name]: name === 'cpf'      ? formatarCpf(value)
+                  : name === 'telefone' ? formatarTel(value)
+                  : value,
+        }))
+    }
+
+    async function handleSubmit() {
+        if (!form.nome || !form.cpf || !form.telefone) {
+            setErro('Nome, CPF e telefone são obrigatórios.')
+            return
         }
-    }, [indice, perguntas, modoTeste])
-
-    function handleProxima() {
-        if (respostaSelecionada === null) return
+        setErro('')
         playBotao()
-
-        const novosAcertos = respostaSelecionada.correta ? acertos + 1 : acertos
-
-        if (indice < perguntas.length - 1) {
-            setAcertos(novosAcertos)
-            setIndice(indice + 1)
-        } else {
-            onFinalizar(novosAcertos)
+        setCarregando(true)
+        try {
+            const { data } = await api.post('/api/cliente', form)
+            onCadastrado({ id: data.id, nome: form.nome })
+        } catch (err) {
+            setErro(err.response?.data?.erro || 'Erro ao cadastrar.')
+        } finally {
+            setCarregando(false)
         }
     }
 
-    if (!perguntas.length || !respostasEmbaralhadas.length) return null
+    return (
+        <div className={`${styles.tela} ${styles.telaApresentacao}`}>
+            <div className={styles.overlay}>
+                <p className={styles.textoApresentacao}>Preencha seus dados para participar</p>
+                <div className={styles.formArea} style={{ gap: '1.2vh', display: 'flex', flexDirection: 'column', width: '100%' }}>
+                    <input className={styles.inputGame} name='nome' placeholder='Nome completo *'
+                        value={form.nome} onChange={handleChange} autoComplete='off' />
+                    <input className={styles.inputGame} name='cpf' placeholder='CPF *'
+                        value={form.cpf} onChange={handleChange} autoComplete='off' inputMode='numeric' />
+                    <input className={styles.inputGame} name='telefone' placeholder='Telefone *'
+                        value={form.telefone} onChange={handleChange} autoComplete='off' inputMode='tel' />
+                    <input className={styles.inputGame} name='email' placeholder='E-mail (opcional)'
+                        value={form.email} onChange={handleChange} autoComplete='off' inputMode='email' />
+                    <select
+                        className={styles.inputGame}
+                        name='perfil'
+                        value={form.perfil}
+                        onChange={handleChange}
+                        style={{ background: 'rgba(0,0,0,0.3)', color: form.perfil ? 'white' : 'rgba(255,255,255,0.5)' }}
+                    >
+                        <option value=''>Perfil (opcional)</option>
+                        {PERFIS.map(p => <option key={p} value={p} style={{ color: '#000' }}>{p}</option>)}
+                    </select>
+                </div>
+                {erro && <p className={styles.erroTexto}>{erro}</p>}
+                <div className={styles.botaoArea}>
+                    <button className={styles.btnGame} onClick={handleSubmit} disabled={carregando}>
+                        {carregando ? 'Cadastrando...' : 'CADASTRAR'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
 
-    const pergunta = perguntas[indice]
+// ─── Etapa 4: Palpite ─────────────────────────────────────────
+function TelaPalpite({ nomeParticipante, onEnviar, playBotao, modoTeste }) {
+    const [resposta, setResposta] = useState(modoTeste ? '42' : '')
+    const [enviando, setEnviando] = useState(false)
+    const [erro, setErro]         = useState('')
+
+    async function handleEnviar() {
+        if (!resposta.trim()) { setErro('Informe seu palpite.'); return }
+        setErro('')
+        playBotao()
+        setEnviando(true)
+        try {
+            await onEnviar(resposta.trim())
+        } catch (e) {
+            setErro(e.message || 'Erro ao enviar palpite.')
+            setEnviando(false)
+        }
+    }
 
     return (
         <div className={`${styles.tela} ${styles.telaQuiz}`}>
             <div className={styles.overlay}>
                 <div className={styles.questionArea}>
-                    <p className={styles.numeroPergunta}>
-                        {indice + 1}/{perguntas.length}
+                    <p className={styles.numeroPergunta}>Seu palpite</p>
+                    <p className={styles.textoPergunta}>
+                        Olá, {nomeParticipante}!<br />
+                        Quantas células você vê no recipiente?
                     </p>
-                    <p className={styles.textoPergunta}>{pergunta.pergunta}</p>
+                    <div style={{
+                        width: '100%', minHeight: '18vh', background: 'rgba(255,255,255,0.1)',
+                        borderRadius: '1vh', marginBottom: '2vh', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center',
+                    }}>
+                        <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.8vh' }}>
+                            [imagem do recipiente]
+                        </span>
+                    </div>
                 </div>
-                <div className={styles.respostasArea}>
-                    {respostasEmbaralhadas.map((resp, k) => (
-                        <label
-                            key={k}
-                            className={`${styles.linhaResposta} ${respostaSelecionada === resp ? styles.selecionada : ''}`}
-                            onClick={() => { playSelecao(); setRespostaSelecionada(resp) }}
-                        >
-                            <input
-                                type='radio'
-                                name='resposta'
-                                checked={respostaSelecionada === resp}
-                                onChange={() => setRespostaSelecionada(resp)}
-                            />
-                            <span>{resp.texto}</span>
-                        </label>
-                    ))}
+                <div className={styles.formArea}>
+                    <input
+                        className={styles.inputGame}
+                        type='number'
+                        inputMode='numeric'
+                        placeholder='Digite seu palpite...'
+                        value={resposta}
+                        onChange={e => setResposta(e.target.value)}
+                        autoComplete='off'
+                    />
                 </div>
+                {erro && <p className={styles.erroTexto}>{erro}</p>}
                 <div className={styles.botaoArea}>
-                    <button
-                        className={styles.btnGame}
-                        onClick={handleProxima}
-                        disabled={respostaSelecionada === null}
-                    >
-                        {indice < perguntas.length - 1 ? 'PRÓXIMA' : 'FINALIZAR'}
+                    <button className={styles.btnGame} onClick={handleEnviar} disabled={enviando}>
+                        {enviando ? 'Enviando...' : 'CONFIRMAR PALPITE'}
                     </button>
                 </div>
             </div>
@@ -190,39 +240,14 @@ function TelaQuiz({ perguntas, onFinalizar, playSelecao, playBotao, modoTeste })
     )
 }
 
-// ─── Etapa 4: Sucesso no quiz ─────────────────────────────────
-function TelaSucesso({ onAvancar, playBotao }) {
-    return (
-        <div className={`${styles.tela} ${styles.telaSucesso}`}>
-            <div className={styles.overlay}>
-                <div className={styles.textoResultado}>
-                    <h2>Parabéns!</h2>
-                    <p>Você acertou as perguntas.<br />Hora de girar a roleta!</p>
-                </div>
-                <div className={styles.botaoArea}>
-                    <button className={styles.btnGame} onClick={() => { playBotao(); onAvancar() }}>
-                        GIRAR ROLETA
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
+// ─── Etapa 5: Roleta (somente exibição) ──────────────────────
+function TelaRoleta({ premios, premioForcado, onEncerrar, play, stop }) {
+    const [premioExibido, setPremioExibido] = useState(null)
 
-// ─── Etapa 5: Roleta ──────────────────────────────────────────
-function TelaRoleta({ premios, clienteId, partidaId, onEncerrar, play, stop }) {
-    const [premioGanho, setPremioGanho] = useState(null)
-
-    async function handlePremioSorteado(premio) {
+    function handlePremioSorteado(premio) {
         stop()
         play('sucessoRoleta')
-        setPremioGanho(premio)
-
-        if (partidaId) {
-            try {
-                await api.patch(`/api/partida/${partidaId}/premio`, { premioId: premio.id })
-            } catch (_) {}
-        }
+        setPremioExibido(premio)
     }
 
     return (
@@ -231,32 +256,11 @@ function TelaRoleta({ premios, clienteId, partidaId, onEncerrar, play, stop }) {
                 premios={premios}
                 onPremioSorteado={handlePremioSorteado}
                 onGirar={() => play('roleta')}
+                premioForcado={premioForcado}
             />
-            {premioGanho && (
-                <ModalPremio
-                    premio={premioGanho}
-                    onFechar={onEncerrar}
-                />
+            {premioExibido && (
+                <ModalPremio premio={premioExibido} onFechar={onEncerrar} />
             )}
-        </div>
-    )
-}
-
-// ─── Etapa 6: Falha ───────────────────────────────────────────
-function TelaFalha({ onEncerrar, playBotao }) {
-    return (
-        <div className={`${styles.tela} ${styles.telaFalha}`}>
-            <div className={styles.overlay}>
-                <div className={styles.textoResultado}>
-                    <h2>Não foi dessa vez!</h2>
-                    <p>Tente novamente na próxima oportunidade.</p>
-                </div>
-                <div className={styles.botaoArea}>
-                    <button className={`${styles.btnGame} ${styles.btnBranco}`} onClick={() => { playBotao(); onEncerrar() }}>
-                        ENCERRAR
-                    </button>
-                </div>
-            </div>
         </div>
     )
 }
@@ -265,73 +269,69 @@ function TelaFalha({ onEncerrar, playBotao }) {
 export default function Jogo() {
     const { play, stop } = useSom()
 
-    const [etapa, setEtapa] = useState(1)
-    const [clienteId, setClienteId] = useState(null)
-    const [partidaId, setPartidaId] = useState(null)
-    const [perguntas, setPerguntas] = useState([])
-    const [premios, setPremios] = useState([])
-    const [erroInicial, setErroInicial] = useState('')
+    // etapas: 1=start 2=identificacao 3=cadastro 4=palpite 5=roleta
+    const [etapa, setEtapa]                 = useState(1)
+    const [clienteId, setClienteId]         = useState(null)
+    const [nomeCliente, setNomeCliente]     = useState('')
+    const [cpfPendente, setCpfPendente]     = useState('')
+    const [premioForcado, setPremioForcado] = useState(null)
+    const [premios, setPremios]             = useState([])
+    const [modoTeste, setModoTeste]         = useState(false)
 
-    // Volta ao estado inicial sem sair da página — modo quiosque
     const resetJogo = useCallback(() => {
         stop()
         setEtapa(1)
         setClienteId(null)
-        setPartidaId(null)
-        setPerguntas([])
+        setNomeCliente('')
+        setCpfPendente('')
+        setPremioForcado(null)
         setPremios([])
-        setErroInicial('')
+        setModoTeste(false)
     }, [stop])
 
-    async function carregarDadosJogo() {
-        try {
-            const [resQuiz, resPremios] = await Promise.all([
-                api.get('/api/quiz'),
-                api.get('/api/premios'),
-            ])
-            setPerguntas(resQuiz.data)
-            setPremios(resPremios.data)
-        } catch {
-            setErroInicial('Erro ao carregar dados do jogo. Reiniciando...')
-            setTimeout(resetJogo, 3000)
-        }
+    async function carregarPremios() {
+        const { data } = await api.get('/api/premios')
+        setPremios(data)
     }
 
-    function handleClienteValidado(cliente) {
+    function avancarParaPalpite(cliente) {
         setClienteId(cliente.id)
-        carregarDadosJogo()
+        setNomeCliente(cliente.nome)
+        setModoTeste(cliente.id === null)
+        carregarPremios().catch(() => {})
+        setEtapa(4)
+    }
+
+    function handleValidado(cliente) {
+        avancarParaPalpite(cliente)
+    }
+
+    function handleNaoEncontrado(cpf) {
+        setCpfPendente(cpf)
         setEtapa(3)
     }
 
-    async function handleQuizFinalizado(totalAcertos) {
-        if (clienteId !== null) {
-            try {
-                const { data } = await api.post('/api/partida', {
-                    clienteId,
-                    quizAcertos: totalAcertos,
-                    premioId: null,
-                })
-                setPartidaId(data.id)
-            } catch (_) {}
+    function handleCadastrado(cliente) {
+        avancarParaPalpite(cliente)
+    }
+
+    async function handlePalpiteEnviado(resposta) {
+        if (clienteId === null) {
+            // Modo dev — usa primeiro prêmio disponível
+            setPremioForcado(premios[0] ?? { id: 0, nome: 'Dev Prêmio', subnome: null })
+            play('sucessoQuiz')
+            setEtapa(5)
+            return
         }
 
-        if (totalAcertos === perguntas.length) {
-            play('sucessoQuiz')
-            setEtapa(4)
-        } else {
-            play('fail')
-            setEtapa(6)
-        }
+        const { data } = await api.post('/api/palpite', { clienteId, palpite: resposta })
+        setPremioForcado({ id: data.premioId, nome: data.premioNome, subnome: data.premioSub })
+        play('sucessoQuiz')
+        setEtapa(5)
     }
 
     return (
         <div className={styles.gameContent}>
-            {erroInicial && (
-                <div className={styles.erroGlobal}>
-                    <p>{erroInicial}</p>
-                </div>
-            )}
-
             {etapa === 1 && (
                 <TelaStart
                     onAvancar={() => setEtapa(2)}
@@ -339,47 +339,41 @@ export default function Jogo() {
                 />
             )}
             {etapa === 2 && (
-                <TelaApresentacao
-                    onValidado={handleClienteValidado}
+                <TelaIdentificacao
+                    onValidado={handleValidado}
+                    onNaoEncontrado={handleNaoEncontrado}
                     playBotao={() => play('botao')}
                 />
             )}
-            {etapa === 3 && perguntas.length === 0 && (
+            {etapa === 3 && (
+                <TelaCadastro
+                    cpfInicial={cpfPendente}
+                    onCadastrado={handleCadastrado}
+                    playBotao={() => play('botao')}
+                />
+            )}
+            {etapa === 4 && premios.length === 0 && (
                 <div className={`${styles.tela} ${styles.telaQuiz}`}>
                     <div className={styles.overlay}>
-                        <p style={{ color: 'white', fontSize: '2.2vh' }}>Carregando perguntas...</p>
+                        <p style={{ color: 'white', fontSize: '2.2vh' }}>Carregando...</p>
                     </div>
                 </div>
             )}
-            {etapa === 3 && perguntas.length > 0 && (
-                <TelaQuiz
-                    perguntas={perguntas}
-                    onFinalizar={handleQuizFinalizado}
-                    playSelecao={() => play('selecao')}
+            {etapa === 4 && premios.length > 0 && (
+                <TelaPalpite
+                    nomeParticipante={nomeCliente}
+                    onEnviar={handlePalpiteEnviado}
                     playBotao={() => play('botao')}
-                    modoTeste={clienteId === null}
-                />
-            )}
-            {etapa === 4 && (
-                <TelaSucesso
-                    onAvancar={() => setEtapa(5)}
-                    playBotao={() => play('botao')}
+                    modoTeste={modoTeste}
                 />
             )}
             {etapa === 5 && (
                 <TelaRoleta
                     premios={premios}
-                    clienteId={clienteId}
-                    partidaId={partidaId}
+                    premioForcado={premioForcado}
                     onEncerrar={resetJogo}
                     play={play}
                     stop={stop}
-                />
-            )}
-            {etapa === 6 && (
-                <TelaFalha
-                    onEncerrar={resetJogo}
-                    playBotao={() => play('botao')}
                 />
             )}
         </div>

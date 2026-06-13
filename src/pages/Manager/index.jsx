@@ -417,7 +417,7 @@ function TabelaClientes({ clientes, onAtualizar }) {
                 <thead>
                     <tr>
                         <th>Nome</th><th>CPF</th><th>Telefone</th><th>Cadastro</th>
-                        <th>Status</th><th>Código</th><th>Prêmio</th><th>Jogou em</th><th>Entregue em</th><th></th>
+                        <th>Status</th><th>Código</th><th>Palpite</th><th>Prêmio</th><th>Jogou em</th><th>Entregue em</th><th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -435,6 +435,11 @@ function TabelaClientes({ clientes, onAtualizar }) {
                                     </span>
                                 </td>
                                 <td className={styles.mono}>{c.codigo ?? '—'}</td>
+                                <td className={styles.centro}>
+                                    {c.params?.palpite
+                                        ? <strong>{c.params.palpite}</strong>
+                                        : <span className={styles.vazio}>—</span>}
+                                </td>
                                 <td>
                                     {c.premio_nome
                                         ? <><strong>{c.premio_nome}</strong>{c.premio_sub ? ` — ${c.premio_sub}` : ''}</>
@@ -461,7 +466,7 @@ function TabelaClientes({ clientes, onAtualizar }) {
                         )
                     })}
                     {clientes.length === 0 && (
-                        <tr><td colSpan={10} className={styles.vazio}>Nenhum cadastro ainda.</td></tr>
+                        <tr><td colSpan={11} className={styles.vazio}>Nenhum cadastro ainda.</td></tr>
                     )}
                 </tbody>
             </table>

@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { CHANCE_PESOS } from '../../constants/chances'
 import styles from './Roleta.module.css'
 
@@ -15,11 +15,10 @@ function peso(p) {
 
 function sortearVencedor(premios) {
     const total = premios.reduce((acc, p) => acc + peso(p), 0)
-    const rand = Math.random() * total
-    let acumulado = 0
+    let rand = Math.random() * total
     for (let i = 0; i < premios.length; i++) {
-        acumulado += peso(premios[i])
-        if (rand <= acumulado) return i
+        rand -= peso(premios[i])
+        if (rand <= 0) return i
     }
     return premios.length - 1
 }
@@ -28,33 +27,46 @@ function gerarGradiente(n, cores) {
     const partes = Array.from({ length: n }, (_, i) => {
         const ini = ((i / n) * 100).toFixed(2)
         const fim = (((i + 1) / n) * 100).toFixed(2)
-        // linha branca fina entre setores
         return `${cores[i % cores.length]} ${ini}% calc(${fim}% - 0.4%), white calc(${fim}% - 0.4%) ${fim}%`
     })
     return `conic-gradient(${partes.join(', ')})`
 }
 
-export default function Roleta({ premios, onPremioSorteado, onGirar }) {
+// premioForcado: { id, nome, subnome } — quando definido, roleta só exibe (sem sorteio client-side)
+export default function Roleta({ premios, onPremioSorteado, onGirar, premioForcado }) {
     const wheelRef = useRef(null)
     const [girando, setGirando] = useState(false)
     const cores = useMemo(() => shuffle(CORES), [])
     const gradiente = useMemo(() => gerarGradiente(premios.length, cores), [premios.length, cores])
     const sectorAngle = premios.length > 0 ? 360 / premios.length : 0
 
-    if (premios.length === 0) {
-        return <div style={{ color: 'white', textAlign: 'center', paddingTop: '40vh', fontSize: '2.2vh' }}>Carregando prêmios...</div>
-    }
+    // Modo display: quando há premioForcado, gira automaticamente para ele
+    useEffect(() => {
+        if (!premioForcado || !wheelRef.current || girando || premios.length === 0) return
 
-    // R em vw — 70% do raio do círculo (círculo = 90vw → raio = 45vw)
-    const labelRadius = 31
+        const indexVencedor = premios.findIndex(p => p.id === premioForcado.id)
+        if (indexVencedor < 0) return
+
+        setGirando(true)
+        if (onGirar) onGirar()
+
+        const angulo = 8 * 360 + (indexVencedor + 0.5) * sectorAngle
+        wheelRef.current.style.transition = `transform ${DURACAO_SPIN}s cubic-bezier(0.05, 0.05, 0.05, 0.95)`
+        wheelRef.current.style.transform = `translate(-50%, -50%) rotate(${angulo}deg)`
+
+        const timer = setTimeout(() => {
+            onPremioSorteado(premioForcado)
+        }, DURACAO_SPIN * 1000 + 600)
+
+        return () => clearTimeout(timer)
+    }, [premioForcado, premios])  // eslint-disable-line
 
     function girar() {
-        if (girando || !wheelRef.current) return
+        if (girando || !wheelRef.current || premioForcado) return
         setGirando(true)
         if (onGirar) onGirar()
 
         const indexVencedor = sortearVencedor(premios)
-        // 8 voltas completas + posicionar setor vencedor sob o ponteiro (topo)
         const angulo = 8 * 360 + (indexVencedor + 0.5) * sectorAngle
 
         wheelRef.current.style.transition = `transform ${DURACAO_SPIN}s cubic-bezier(0.05, 0.05, 0.05, 0.95)`
@@ -65,12 +77,16 @@ export default function Roleta({ premios, onPremioSorteado, onGirar }) {
         }, DURACAO_SPIN * 1000 + 600)
     }
 
+    if (premios.length === 0) {
+        return <div style={{ color: 'white', textAlign: 'center', paddingTop: '40vh', fontSize: '2.2vh' }}>Carregando prêmios...</div>
+    }
+
+    const labelRadius = 31
+
     return (
         <div className={styles.roletaPlace}>
-            {/* Ponteiro */}
             <div className={styles.ponteiro} />
 
-            {/* Roda */}
             <div
                 ref={wheelRef}
                 className={styles.circle}
@@ -101,19 +117,29 @@ export default function Roleta({ premios, onPremioSorteado, onGirar }) {
                 })}
             </div>
 
-            {/* Centro decorativo */}
             <div className={styles.centro} />
 
-            {/* Botão */}
-            <div className={styles.botaoArea}>
-                <button
-                    className={styles.btnGirar}
-                    onClick={girar}
-                    disabled={girando}
-                >
-                    {girando ? 'GIRANDO...' : 'GIRAR'}
-                </button>
-            </div>
+            {/* Botão só aparece em modo livre (sem premioForcado) */}
+            {!premioForcado && (
+                <div className={styles.botaoArea}>
+                    <button
+                        className={styles.btnGirar}
+                        onClick={girar}
+                        disabled={girando}
+                    >
+                        {girando ? 'GIRANDO...' : 'GIRAR'}
+                    </button>
+                </div>
+            )}
+
+            {/* Modo display: instrução visual enquanto não gira */}
+            {premioForcado && !girando && (
+                <div className={styles.botaoArea}>
+                    <p style={{ color: 'white', fontSize: '2.5vh', textAlign: 'center' }}>
+                        Aguarde o resultado...
+                    </p>
+                </div>
+            )}
         </div>
     )
 }

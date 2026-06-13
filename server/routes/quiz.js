@@ -2,15 +2,18 @@ const express = require('express')
 const router = express.Router()
 const pool = require('../db/connection')
 
+const TENANT_ID = parseInt(process.env.TENANT_ID || '2')
+
 // GET /api/quiz — retorna 3 perguntas aleatórias ativas
 router.get('/', async (req, res) => {
     try {
         const result = await pool.query(
             `SELECT id, pergunta, primeira, segunda, terceira, quarta, ultima_resposta, correta
              FROM quiz
-             WHERE ativo = true
+             WHERE ativo = true AND tenant_id = $1
              ORDER BY RANDOM()
-             LIMIT 3`
+             LIMIT 3`,
+            [TENANT_ID]
         )
 
         const perguntas = result.rows.map((q) => {

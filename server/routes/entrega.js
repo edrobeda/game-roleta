@@ -2,7 +2,8 @@ const express = require('express')
 const router  = express.Router()
 const pool    = require('../db/connection')
 
-// auth por senha simples — token = a própria senha do .env
+const TENANT_ID = parseInt(process.env.TENANT_ID || '2')
+
 function auth(req, res, next) {
     if (req.headers['x-entrega-token'] !== process.env.ENTREGA_PASS) {
         return res.status(401).json({ erro: 'Não autorizado.' })
@@ -23,7 +24,7 @@ router.get('/:codigo', auth, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT
-                p.id AS partida_id, p.status, p.codigo,
+                p.id AS partida_id, p.status, p.codigo, p.params,
                 TO_CHAR(p.jogado_em,   'DD/MM/YYYY HH24:MI') AS jogado_em,
                 TO_CHAR(p.entregue_em, 'DD/MM/YYYY HH24:MI') AS entregue_em,
                 p.operador,
@@ -33,8 +34,8 @@ router.get('/:codigo', auth, async (req, res) => {
             FROM partidas p
             JOIN clientes c  ON c.id  = p.cliente_id
             JOIN premios  pr ON pr.id = p.premio_id
-            WHERE p.codigo = $1
-        `, [req.params.codigo.trim().toUpperCase()])
+            WHERE p.codigo = $1 AND p.tenant_id = $2
+        `, [req.params.codigo.trim().toUpperCase(), TENANT_ID])
 
         if (result.rows.length === 0) {
             return res.status(404).json({ erro: 'Código não encontrado.' })
@@ -50,8 +51,8 @@ router.post('/:codigo/confirmar', auth, async (req, res) => {
     const { operador } = req.body
     try {
         const { rows } = await pool.query(
-            'SELECT id, status FROM partidas WHERE codigo = $1',
-            [req.params.codigo.trim().toUpperCase()]
+            'SELECT id, status FROM partidas WHERE codigo = $1 AND tenant_id = $2',
+            [req.params.codigo.trim().toUpperCase(), TENANT_ID]
         )
         if (rows.length === 0)           return res.status(404).json({ erro: 'Código não encontrado.' })
         if (rows[0].status === 'premio_entregue') {

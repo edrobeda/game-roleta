@@ -233,6 +233,36 @@
 
 .botaoSecundario:hover { border-color: #C3630A; color: #C3630A; }
 
+/* ─── Tela da roleta ─────────────────────────────────────────── */
+.telaRoleta {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #005844;
+    padding: 4vh 0;
+    box-sizing: border-box;
+}
+
+.roletaBox {
+    width: 100%;
+    max-width: 500px;
+    padding: 0 4vw;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3vh;
+}
+
+/* Roleta: 100% do container, sempre quadrado */
+.roletaWrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
 /* ─── Animações ──────────────────────────────────────────────── */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(2vh); }
