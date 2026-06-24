@@ -89,7 +89,7 @@
     position: relative;
     padding: 1.5vh 8vw;
     background-color: #58A561;
-    color: #005844;
+    color: var(--primary);
     font-size: 2.2vh;
     font-weight: 700;
     text-transform: uppercase;
@@ -109,7 +109,7 @@
 }
 
 .btnGirar:hover:not(:disabled) {
-    background-color: #005844;
+    background-color: var(--primary);
     color: white;
 }
 

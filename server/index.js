@@ -12,11 +12,9 @@ app.use('/api/game/status', require('./routes/status'))
 app.use('/api/premios',    require('./routes/premios'))
 app.use('/api/quiz',       require('./routes/quiz'))
 app.use('/api/cliente',    require('./routes/cliente'))
-app.use('/api/palpite',    require('./routes/palpite'))
 app.use('/api/partida',    require('./routes/partida'))
 app.use('/api/manager',    require('./routes/manager'))
 app.use('/api/entrega',    require('./routes/entrega'))
-app.use('/api/email',      require('./routes/email'))
 
 app.get('/api/health', async (req, res) => {
     const pool = require('./db/connection')

@@ -1,274 +1,356 @@
-/* ─── Container ───────────────────────────────────────────── */
-.container {
+/* ─── Layout principal ────────────────────────────────────── */
+.layout {
     min-height: 100vh;
-    width: 100vw;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    background: var(--primary);
+    font-family: inherit;
+    color: #fff;
+}
+
+.header {
+    background: #fff;
+    width: 100%;
+    display: flex;
     justify-content: center;
-    background-color: #005844;
-    padding: 2vh 4vw;
+    align-items: center;
+    padding: 14px 24px;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    flex-shrink: 0;
     box-sizing: border-box;
 }
 
-.card {
-    background: #fff;
-    border-radius: 1.5vh;
-    padding: 4vh 6vw;
+.headerLogo {
     width: 100%;
-    max-width: 480px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    max-width: 280px;
+    height: auto;
+    display: block;
+}
+
+.headerTitle {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.3px;
+}
+
+.main {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 32px 24px 40px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.inner {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.38s ease-out;
+}
+
+.footer {
+    background: var(--secondary, rgba(0,0,0,0.2));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 24px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.footerLogo {
+    height: 36px;
+    width: auto;
+    display: block;
+}
+
+.footerTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ─── Tela: Boas-vindas ───────────────────────────────────── */
+.welcome {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    text-align: center;
+    padding-top: 8px;
+}
+
+.welcomeTitle {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.welcomeHighlight {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.welcomeBig {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.welcomeSub {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.2;
+}
+
+.infoCard {
+    background: rgba(0,0,0,0.18);
+    border-radius: 16px;
+    padding: 20px 22px;
+    font-size: 17px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* ─── Títulos / subtítulos ────────────────────────────────── */
+.titulo {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 900;
+    color: #fff;
     text-align: center;
 }
 
-/* ─── Form de cadastro ────────────────────────────────────── */
-.titulo {
-    font-size: 3.5vh;
-    font-weight: 700;
-    color: #005844;
-    margin: 0 0 0.5vh;
-}
-
 .subtitulo {
-    font-size: 1.8vh;
-    color: #666;
-    margin: 0 0 3vh;
+    margin: 6px 0 0;
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
 }
 
+/* ─── Form ────────────────────────────────────────────────── */
 .form {
     display: flex;
     flex-direction: column;
-    gap: 2vh;
+    gap: 14px;
     width: 100%;
-    text-align: left;
+    margin-top: 20px;
 }
 
 .campo {
     display: flex;
     flex-direction: column;
-    gap: 0.5vh;
+    gap: 5px;
+    text-align: left;
 }
 
 .campo label {
-    font-size: 1.6vh;
-    font-weight: 500;
-    color: #333;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.9);
 }
 
 .opcional {
-    font-size: 1.3vh;
-    color: #999;
+    font-size: 12px;
     font-weight: 400;
+    opacity: 0.55;
 }
 
 .campo input,
 .campo select {
-    border: 1px solid #ccc;
-    border-radius: 0.8vh;
-    padding: 1.2vh 1.5vw;
-    font-size: 2vh;
-    color: #333;
-    outline: none;
-    transition: border-color 0.2s;
+    width: 100%;
+    border: none;
+    border-radius: 13px;
+    padding: 15px 16px;
+    font-family: inherit;
+    font-size: 17px;
+    color: #1a1a2e;
     background: #fff;
+    outline: none;
+    box-sizing: border-box;
+    appearance: none;
 }
 
+.campo input::placeholder { color: #aaa; }
 .campo input:focus,
-.campo select:focus {
-    border-color: #005844;
-}
+.campo select:focus { outline: 2px solid var(--accent, rgba(255,255,255,0.5)); outline-offset: 1px; }
 
 .erro {
-    color: #C3630A;
-    font-size: 1.6vh;
+    color: #FFD700;
+    font-size: 14px;
     margin: 0;
     text-align: center;
 }
 
+/* ─── Botões ──────────────────────────────────────────────── */
 .botao {
-    margin-top: 1vh;
-    padding: 1.8vh 0;
-    background-color: #58A561;
-    color: #005844;
-    font-size: 2.2vh;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: none;
-    border-radius: 1vh;
-    cursor: pointer;
-    transition: background-color 0.2s;
     width: 100%;
+    border: none;
+    cursor: pointer;
+    background: var(--btn-bg, rgba(255,255,255,0.2));
+    color: var(--btn-text, #fff);
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transition: filter 0.2s;
+    margin-top: 8px;
 }
 
-.botao:hover { background-color: #005844; color: #fff; }
-.botao:disabled { background-color: #aaa; color: #fff; cursor: not-allowed; }
+.botao:hover:not(:disabled) { filter: brightness(1.08); }
+.botao:disabled { opacity: 0.55; cursor: not-allowed; }
 
-.verificando {
-    font-size: 1.4vh;
-    color: #888;
-    margin-top: 0.4vh;
+.botaoSecundario {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.8);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 36px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: center;
+    margin-top: 4px;
 }
 
-/* ─── Tela de status ──────────────────────────────────────── */
-.statusIcone {
-    font-size: 6vh;
-    margin: 0 0 1vh;
+.botaoSecundario:hover { background: rgba(255,255,255,0.1); }
+
+/* ─── Tela: Status (aguardando / prêmio / entregue) ──────── */
+.statusWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    padding-top: 8px;
+}
+
+.statusIcon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .statusTitulo {
-    font-size: 3vh;
-    font-weight: 700;
-    color: #005844;
-    margin: 0 0 1.5vh;
+    margin: 0;
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
 }
 
 .statusMsg {
-    font-size: 1.8vh;
-    color: #555;
-    margin: 0 0 2vh;
+    margin: 4px 0 0;
+    font-size: 16px;
+    color: rgba(255,255,255,0.65);
     line-height: 1.5;
 }
 
 .statusDica {
-    font-size: 1.5vh;
-    color: #888;
-    margin: 1.5vh 0 0;
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
 }
 
-/* CPF em destaque na tela de espera */
 .cpfDestaque {
-    font-size: 3.5vh;
-    font-weight: 800;
-    color: #005844;
-    letter-spacing: 0.08em;
-    background: #f0f7f4;
-    border-radius: 1vh;
-    padding: 1.5vh 4vw;
-    margin: 1vh 0;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 16px 28px;
+    font-variant-numeric: tabular-nums;
 }
 
 /* ─── Prêmio ──────────────────────────────────────────────── */
-.premioNome {
-    font-size: 3.5vh;
-    font-weight: 800;
-    color: #005844;
-    margin: 0.5vh 0 0;
-}
-
-.premioSub {
-    font-size: 2.2vh;
-    color: #488B53;
-    font-weight: 600;
-    margin: 0.3vh 0 0;
-}
-
-/* ─── Código único ────────────────────────────────────────── */
-.codigoBox {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #005844;
-    border-radius: 1vh;
-    padding: 1.5vh 5vw;
-    margin: 2vh 0 1.5vh;
-    gap: 0.3vh;
-}
-
-.codigoLabel {
-    font-size: 1.3vh;
-    color: #B7C922;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.codigo {
-    font-size: 3vh;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: 0.12em;
-    font-family: monospace;
-}
-
-/* ─── QR Code ─────────────────────────────────────────────── */
-.qrBox {
-    background: #fff;
-    padding: 2vh;
-    border-radius: 1vh;
-    border: 0.3vh solid #e0e0e0;
-    margin: 1vh 0;
-    display: inline-flex;
-}
-
-/* ─── Entrega confirmada ──────────────────────────────────── */
-.entregaInfo {
-    background: #f0f7f4;
-    border-radius: 1vh;
-    padding: 1.5vh 3vw;
-    margin: 1.5vh 0;
-    font-size: 1.8vh;
-    color: #333;
-}
-
-/* ─── Rodapé da tela de status ────────────────────────────── */
-.nomeCliente {
-    font-size: 1.4vh;
-    color: #aaa;
-    margin: 2vh 0 0.5vh;
-}
-
-.botaoSecundario {
-    background: transparent;
-    border: 1px solid #ddd;
-    color: #999;
-    font-size: 1.4vh;
-    padding: 0.8vh 2vw;
-    border-radius: 0.8vh;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 0.5vh;
-}
-
-.botaoSecundario:hover { border-color: #C3630A; color: #C3630A; }
-
-/* ─── Tela da roleta ─────────────────────────────────────────── */
-.telaRoleta {
-    min-height: 100vh;
-    width: 100vw;
+.checkCircle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #005844;
-    padding: 4vh 0;
-    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
-.roletaBox {
+.premioNome {
+    margin: 4px 0 0;
+    font-size: 26px;
+    font-weight: 900;
+    color: #fff;
+}
+
+.premioSub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 600;
+    margin: 4px 0 0;
+}
+
+/* ─── Código / QR ─────────────────────────────────────────── */
+.codigoBox {
     width: 100%;
-    max-width: 500px;
-    padding: 0 4vw;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3vh;
+    background: rgba(0,0,0,0.2);
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-align: center;
 }
 
-/* Roleta: 100% do container, sempre quadrado */
-.roletaWrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
+.codigoLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
 }
 
-/* ─── Animações ──────────────────────────────────────────────── */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(2vh); }
+.codigo {
+    display: block;
+    margin: 8px 0 0;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #fff;
+}
+
+.qrBox {
+    background: #fff;
+    padding: 14px;
+    border-radius: 16px;
+    display: inline-flex;
+}
+
+.nomeCliente {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    margin: 4px 0 0;
+}
+
+/* ─── Animação ────────────────────────────────────────────── */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
     to   { opacity: 1; transform: translateY(0); }
-}
-
-.card {
-    animation: fadeIn 0.35s ease;
 }

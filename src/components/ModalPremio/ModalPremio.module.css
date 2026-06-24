@@ -22,7 +22,7 @@
 .parabens {
     font-size: 3.5vh;
     font-weight: 900;
-    color: #005844;
+    color: var(--primary);
     margin: 0 0 0.5vh;
 }
 
@@ -36,7 +36,7 @@
 .nomePremio {
     font-size: 4vh;
     font-weight: 800;
-    color: #005844;
+    color: var(--primary);
     margin: 0;
     line-height: 1.2;
 }
@@ -69,7 +69,7 @@
 }
 
 .btnFechar:hover {
-    background-color: #005844;
+    background-color: var(--primary);
 }
 
 @keyframes fadeIn {

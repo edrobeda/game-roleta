@@ -34,7 +34,8 @@ router.get('/stats', auth, async (req, res) => {
             SELECT
                 (SELECT COUNT(*) FROM clientes WHERE tenant_id = $1)                           AS total_clientes,
                 (SELECT COUNT(*) FROM partidas WHERE tenant_id = $1)                           AS total_partidas,
-                (SELECT COUNT(*) FROM partidas WHERE premio_id IS NOT NULL AND tenant_id = $1) AS premios_distribuidos
+                (SELECT COUNT(*) FROM partidas WHERE premio_id IS NOT NULL AND tenant_id = $1) AS premios_distribuidos,
+                (SELECT COUNT(*) FROM partidas WHERE quiz_acertos IS NOT NULL AND tenant_id = $1) AS quiz_completos
         `, [TENANT_ID])
         res.json(result.rows[0])
     } catch (err) {

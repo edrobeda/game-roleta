@@ -6,7 +6,9 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL}
         VITE_API_TOKEN: ${VITE_API_TOKEN}
-    container_name: DK_GAME_VETNIL
+        VITE_PRIMARY_COLOR: ${VITE_PRIMARY_COLOR:-#005844}
+        VITE_GAME_TITLE: ${VITE_GAME_TITLE:-Game Roleta}
+    container_name: ${CONTAINER_NAME:-DK_GAME_WL}
     restart: unless-stopped
     networks:
       - docker-base_default
@@ -15,7 +17,7 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    container_name: DK_GAME_VETNIL_API
+    container_name: ${CONTAINER_NAME:-DK_GAME_WL}_API
     restart: unless-stopped
     environment:
       DB_HOST: ${DB_HOST}
@@ -23,12 +25,14 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME:-mydb}
-      TENANT_ID: ${TENANT_ID:-2}
+      TENANT_ID: ${TENANT_ID}
+      MANAGER_DB_NAME: ${MANAGER_DB_NAME:-mydb}
       PORT: 3001
       JWT_SECRET: ${JWT_SECRET}
       MANAGER_USER: ${MANAGER_USER}
       MANAGER_PASS: ${MANAGER_PASS}
       ENTREGA_PASS: ${ENTREGA_PASS}
+      QUIZ_MIN_ACERTOS: ${QUIZ_MIN_ACERTOS:-2}
     networks:
       - docker-base_default
       - eventify_network

@@ -1,6 +1,6 @@
 /* ─── Variáveis ─────────────────────────────────────────────── */
 :root {
-    --verde: #005844;
+    --verde: var(--primary);
     --verde-claro: #58A561;
     --lima: #B7C922;
     --tangerina: #C3630A;
@@ -16,7 +16,7 @@
     width: 100vw;
     overflow: hidden;
     position: relative;
-    background-color: var(--verde);
+    background-color: var(--primary);
 }
 
 /* ─── Tela base ─────────────────────────────────────────────── */
@@ -44,11 +44,11 @@
 }
 
 /* ─── Cores por etapa ───────────────────────────────────────── */
-.telaStart        { background-color: var(--verde); }
-.telaApresentacao { background-color: var(--verde); }
+.telaStart        { background-color: var(--primary); }
+.telaApresentacao { background-color: var(--primary); }
 .telaQuiz         { background-color: #0C357F; }
 .telaSucesso      { background-color: var(--verde-claro); }
-.telaRoleta       { background-color: var(--verde); }
+.telaRoleta       { background-color: var(--primary); }
 .telaFalha        { background-color: var(--tangerina); }
 
 /* ─── Start ─────────────────────────────────────────────────── */
@@ -184,15 +184,15 @@
 .btnGame {
     position: relative;
     padding: 1.5vh 8vw;
-    background-color: var(--verde-claro);
-    color: var(--verde);
+    background-color: var(--primary);
+    color: var(--btn-text);
     font-size: var(--btn-font);
     font-weight: 700;
     text-transform: uppercase;
     border: none;
     border-radius: 1vh;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: filter 0.2s;
 }
 
 .btnGame::after {
@@ -200,19 +200,19 @@
     position: absolute;
     inset: -0.5vh;
     border-radius: 1.5vh;
-    border: 0.3vh solid var(--verde-claro);
-    opacity: 0.5;
+    border: 0.3vh solid var(--btn-text);
+    opacity: 0.3;
 }
 
 .btnGame:hover {
-    background-color: var(--verde);
-    color: var(--branco);
+    filter: brightness(0.85);
 }
 
 .btnGame:disabled {
     background-color: #888;
-    color: var(--branco);
+    color: #fff;
     cursor: not-allowed;
+    filter: none;
 }
 
 .btnBranco {
