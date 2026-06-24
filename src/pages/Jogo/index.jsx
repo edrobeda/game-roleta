@@ -197,7 +197,29 @@ function TelaQuiz({ nomeParticipante, clienteId, onConcluido, playBotao, modoTes
     )
 }
 
-// ─── Etapa 4: Roleta ──────────────────────────────────────────
+// ─── Etapa 4: Falha no quiz ───────────────────────────────────
+function TelaFalha({ acertos, onReiniciar }) {
+    return (
+        <div className={`${styles.tela} ${styles.telaFalha}`}>
+            <div className={styles.overlay}>
+                <div className={styles.textoResultado}>
+                    <h2>Quase lá!</h2>
+                    <p>Você acertou <strong>{acertos}</strong> de 3 perguntas.</p>
+                    <p style={{ marginTop: '1vh', opacity: 0.85 }}>
+                        São necessários 3 acertos para girar a roleta.
+                    </p>
+                </div>
+                <div className={styles.botaoArea}>
+                    <button className={`${styles.btnGame} ${styles.btnBranco}`} onClick={onReiniciar}>
+                        INÍCIO
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ─── Etapa 5: Roleta ──────────────────────────────────────────
 function TelaRoleta({ premios, premioForcado, onEncerrar, play, stop }) {
     const [premioExibido, setPremioExibido] = useState(null)
 
@@ -232,6 +254,7 @@ export default function Jogo() {
     const [premioForcado, setPremio]    = useState(null)
     const [premios, setPremios]         = useState([])
     const [modoTeste, setModoTeste]     = useState(false)
+    const [acertos, setAcertos]         = useState(0)
 
     const resetJogo = useCallback(() => {
         stop()
@@ -241,6 +264,7 @@ export default function Jogo() {
         setPremio(null)
         setPremios([])
         setModoTeste(false)
+        setAcertos(0)
     }, [stop])
 
     function handleValidado(cliente) {
@@ -251,9 +275,14 @@ export default function Jogo() {
     }
 
     function handleQuizConcluido(data) {
+        setAcertos(data.acertos ?? 0)
+        if (data.aprovado === false) {
+            setEtapa(4)
+            return
+        }
         setPremios(data.premios || [])
         setPremio({ id: data.premioId, nome: data.premioNome, subnome: data.premioSub })
-        setEtapa(4)
+        setEtapa(5)
     }
 
     return (
@@ -274,6 +303,9 @@ export default function Jogo() {
                 />
             )}
             {etapa === 4 && (
+                <TelaFalha acertos={acertos} onReiniciar={resetJogo} />
+            )}
+            {etapa === 5 && (
                 <TelaRoleta
                     premios={premios}
                     premioForcado={premioForcado}

@@ -32,7 +32,7 @@ services:
       MANAGER_USER: ${MANAGER_USER}
       MANAGER_PASS: ${MANAGER_PASS}
       ENTREGA_PASS: ${ENTREGA_PASS}
-      QUIZ_MIN_ACERTOS: ${QUIZ_MIN_ACERTOS:-2}
+      QUIZ_MIN_ACERTOS: ${QUIZ_MIN_ACERTOS:-3}
     networks:
       - docker-base_default
       - eventify_network

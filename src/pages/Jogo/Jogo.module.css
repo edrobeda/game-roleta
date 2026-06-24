@@ -46,8 +46,8 @@
 /* ─── Cores por etapa ───────────────────────────────────────── */
 .telaStart        { background-color: var(--primary); }
 .telaApresentacao { background-color: var(--primary); }
-.telaQuiz         { background-color: #0C357F; }
-.telaSucesso      { background-color: var(--verde-claro); }
+.telaQuiz         { background-color: var(--primary); }
+.telaSucesso      { background-color: var(--primary); }
 .telaRoleta       { background-color: var(--primary); }
 .telaFalha        { background-color: var(--tangerina); }
 

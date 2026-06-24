@@ -104,7 +104,18 @@ router.post('/responder', async (req, res) => {
             if (resp.respostaIndex === corretaIdx) acertos++
         }
 
-        // Pool de prêmios conforme desempenho
+        // Caminho de falha: registra partida sem prêmio e encerra
+        if (acertos < MIN_ACERTOS) {
+            await client.query(
+                `INSERT INTO partidas (cliente_id, tenant_id, quiz_acertos, premio_id, codigo, status)
+                 VALUES ($1, $2, $3, NULL, NULL, 'sem_premio')`,
+                [clienteId, TENANT_ID, acertos]
+            )
+            await client.query('COMMIT')
+            return res.status(201).json({ acertos, aprovado: false })
+        }
+
+        // Caminho de sucesso: sorteia prêmio e gera código
         const premiosRes = await client.query(`
             SELECT p.id, p.nome, p.subnome, p.chance
             FROM premios p
@@ -115,7 +126,6 @@ router.post('/responder', async (req, res) => {
             ) s ON s.premio_id = p.id
             WHERE p.ativo = true AND p.tenant_id = $1
               AND (p.quantidade IS NULL OR COALESCE(s.sorteados, 0) < p.quantidade)
-              ${acertos >= MIN_ACERTOS ? '' : 'AND p.chance >= 4'}
         `, [TENANT_ID])
 
         if (premiosRes.rows.length === 0) {
@@ -125,7 +135,6 @@ router.post('/responder', async (req, res) => {
 
         const premioSorteado = sortearPremio(premiosRes.rows)
 
-        // Gera código único
         let codigo = null
         for (let i = 0; i < 5; i++) {
             const tentativa = gerarCodigo()
@@ -172,6 +181,7 @@ router.post('/responder', async (req, res) => {
 
         res.status(201).json({
             acertos,
+            aprovado:   true,
             codigo,
             premioId:   premioSorteado.id,
             premioNome: premioSorteado.nome,

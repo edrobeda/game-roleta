@@ -3,7 +3,7 @@
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background: conic-gradient(from 225deg, #0C357F, #2BF6A5);
+    background: var(--primary);
 }
 
 /* ─── Roda ─────────────────────────────────────────────────── */
@@ -88,7 +88,7 @@
 .btnGirar {
     position: relative;
     padding: 1.5vh 8vw;
-    background-color: #58A561;
+    background-color: #fff;
     color: var(--primary);
     font-size: 2.2vh;
     font-weight: 700;
@@ -96,7 +96,7 @@
     border: none;
     border-radius: 1vh;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: filter 0.2s;
 }
 
 .btnGirar::after {
@@ -104,13 +104,12 @@
     position: absolute;
     inset: -0.5vh;
     border-radius: 1.5vh;
-    border: 0.3vh solid #58A561;
+    border: 0.3vh solid rgba(255,255,255,0.5);
     opacity: 0.5;
 }
 
 .btnGirar:hover:not(:disabled) {
-    background-color: var(--primary);
-    color: white;
+    filter: brightness(0.92);
 }
 
 .btnGirar:disabled {
