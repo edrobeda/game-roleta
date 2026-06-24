@@ -76,6 +76,7 @@ function Cards({ stats }) {
 const STATUS_LABEL = {
     cadastrado:        { label: 'Aguardando',        cor: '#888'    },
     jogando:           { label: 'Jogou',              cor: '#B7C922' },
+    sem_premio:        { label: 'Perdeu',             cor: '#e53935' },
     premio_disponivel: { label: 'Prêmio disponível', cor: '#C3630A' },
     premio_entregue:   { label: 'Entregue',          cor: '#58A561' },
 }

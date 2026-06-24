@@ -229,6 +229,29 @@ function TelaStatus({ cpf, nomeInicial, partidaInicial }) {
         )
     }
 
+    if (partida.status === 'sem_premio') {
+        return (
+            <Layout>
+                <div className={styles.statusWrap}>
+                    <div className={styles.statusIcon}>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <h2 className={styles.statusTitulo}>Não foi dessa vez!</h2>
+                    <p className={styles.statusMsg}>
+                        Você acertou <strong>{partida.quiz_acertos}</strong> de 3 perguntas.
+                    </p>
+                    <p className={styles.statusDica}>São necessários 3 acertos para concorrer a um prêmio.</p>
+                    <div className={styles.nomeCliente}>{nome}</div>
+                    <button className={styles.botaoSecundario} onClick={reiniciar}>Novo cadastro</button>
+                </div>
+            </Layout>
+        )
+    }
+
     if (partida.status === 'premio_disponivel') {
         return (
             <Layout>

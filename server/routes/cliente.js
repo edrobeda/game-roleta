@@ -125,14 +125,15 @@ router.get('/status/:cpf', async (req, res) => {
         res.json({
             cliente: { id: row.id, nome: row.nome, cpf: row.cpf },
             partida: row.partida_id ? {
-                status:      row.status,
-                codigo:      row.codigo,
-                jogado_em:   row.jogado_em,
-                entregue_em: row.entregue_em,
-                operador:    row.operador,
-                premio_nome: row.premio_nome,
-                premio_sub:  row.premio_sub,
-                params:      row.params,
+                status:        row.status,
+                codigo:        row.codigo,
+                quiz_acertos:  row.quiz_acertos,
+                jogado_em:     row.jogado_em,
+                entregue_em:   row.entregue_em,
+                operador:      row.operador,
+                premio_nome:   row.premio_nome,
+                premio_sub:    row.premio_sub,
+                params:        row.params,
             } : null,
         })
     } catch (err) {
