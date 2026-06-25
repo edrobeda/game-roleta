@@ -43,7 +43,7 @@ router.get('/', async (req, res) => {
             if (q.segunda)         respostas.push({ texto: q.segunda })
             if (q.terceira)        respostas.push({ texto: q.terceira })
             if (q.quarta)          respostas.push({ texto: q.quarta })
-            if (q.ultima_resposta) respostas.push({ texto: q.ultima_resposta })
+            if (q.ultima_resposta) respostas.push({ texto: q.ultima_resposta, isUltima: true })
             return { id: q.id, pergunta: q.pergunta, respostas }
         })
 
@@ -95,12 +95,14 @@ router.post('/responder', async (req, res) => {
         )
 
         // Calcula acertos
+        const COLUNAS = ['primeira', 'segunda', 'terceira', 'quarta', 'ultima_resposta']
         let acertos = 0
         for (const gab of gabRes.rows) {
             const resp = respostas.find(r => r.quizId === gab.id)
             if (!resp) continue
-            const opcoes = [gab.primeira, gab.segunda, gab.terceira, gab.quarta, gab.ultima_resposta].filter(Boolean)
-            const corretaIdx = gab.correta - 1
+            const ativas = COLUNAS.filter(col => gab[col])
+            const corretaColuna = COLUNAS[gab.correta - 1]
+            const corretaIdx = ativas.indexOf(corretaColuna)
             if (resp.respostaIndex === corretaIdx) acertos++
         }
 

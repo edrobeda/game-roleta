@@ -164,12 +164,15 @@ function TelaQuiz({ nomeParticipante, clienteId, onConcluido, playBotao, modoTes
     }
 
     const pergunta = perguntas[indice]
-    // Embaralha respostas uma vez por pergunta (índice muda → novo embaralhamento)
-    const respostasEmbaralhadas = useMemo(
-        () => pergunta ? pergunta.respostas.map((r, i) => ({ ...r, _origIdx: i })).sort(() => Math.random() - 0.5) : [],
+    // Embaralha respostas uma vez por pergunta; ultima_resposta sempre fica por último
+    const respostasEmbaralhadas = useMemo(() => {
+        if (!pergunta) return []
+        const comIdx = pergunta.respostas.map((r, i) => ({ ...r, _origIdx: i }))
+        const ultima = comIdx.find(r => r.isUltima)
+        const outras = comIdx.filter(r => !r.isUltima).sort(() => Math.random() - 0.5)
+        return ultima ? [...outras, ultima] : outras
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [indice, perguntas.length]
-    )
+    }, [indice, perguntas.length])
 
     return (
         <div className={`${styles.tela} ${styles.telaQuiz}`}>
