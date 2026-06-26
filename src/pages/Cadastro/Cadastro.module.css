@@ -77,51 +77,55 @@
     text-transform: uppercase;
 }
 
-/* ─── Tela: Boas-vindas ───────────────────────────────────── */
+/* ─── Tela: Home (boas-vindas sem header/footer) ─────────── */
+.telaHome {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    text-align: center;
+    padding: 40px 32px;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+/* ─── Tela: Boas-vindas (inner) ───────────────────────────── */
 .welcome {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    align-items: center;
+    gap: 20px;
     text-align: center;
-    padding-top: 8px;
+    padding-top: 60px;
 }
 
 .welcomeTitle {
     margin: 0;
-    font-size: 28px;
-    line-height: 1.2;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-}
-
-.welcomeHighlight {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.welcomeBig {
-    margin: 0;
-    font-size: 32px;
-    font-weight: 900;
+    font-size: 44px;
     line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: -1px;
 }
 
 .welcomeSub {
     margin: 0;
-    font-size: 22px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.55);
-    line-height: 1.2;
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
 }
 
-.infoCard {
-    background: rgba(0,0,0,0.18);
-    border-radius: 16px;
-    padding: 20px 22px;
-    font-size: 17px;
-    line-height: 1.5;
-    text-align: left;
+.welcomeBtn {
+    width: 100%;
+    max-width: 320px;
+    margin-top: 16px;
+    font-size: 22px;
+    padding: 20px;
+    border-radius: 18px;
+    letter-spacing: 1px;
 }
 
 /* ─── Títulos / subtítulos ────────────────────────────────── */

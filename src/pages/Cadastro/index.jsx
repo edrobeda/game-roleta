@@ -47,31 +47,13 @@ function Layout({ children }) {
 // ─── Tela 0: Boas-vindas ──────────────────────────────────
 function TelaBoasVindas({ onAvancar }) {
     return (
-        <Layout>
-            <div className={styles.welcome}>
-                <h1 className={styles.welcomeTitle}>
-                    Participe do nosso desafio<br />e concorra a prêmios
-                </h1>
-
-                <div className={styles.welcomeHighlight}>
-                    <p className={styles.welcomeBig}>Responda o Quiz</p>
-                    <p className={styles.welcomeSub}>teste seus conhecimentos</p>
-                </div>
-
-                <div className={styles.welcomeHighlight}>
-                    <p className={styles.welcomeBig}>Gire a Roleta</p>
-                    <p className={styles.welcomeSub}>descubra seu prêmio na hora!</p>
-                </div>
-
-                <div className={styles.infoCard}>
-                    <strong>O prêmio é retirado no stand</strong> durante o evento, mediante apresentação do seu cadastro.
-                </div>
-
-                <button className={styles.botao} onClick={onAvancar} style={{ marginTop: 6 }}>
-                    QUERO PARTICIPAR
-                </button>
-            </div>
-        </Layout>
+        <div className={styles.telaHome}>
+            <h1 className={styles.welcomeTitle}>Quiz {TITLE.toUpperCase()}</h1>
+            <p className={styles.welcomeSub}>Participe e concorra a prêmios</p>
+            <button className={`${styles.botao} ${styles.welcomeBtn}`} onClick={onAvancar}>
+                QUERO PARTICIPAR
+            </button>
+        </div>
     )
 }
 
@@ -152,7 +134,7 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
         setErro('')
         setCarregando(true)
         try {
-            const { data } = await api.post('/api/cliente', { ...form, aceita_marketing: aceitaMarketing })
+            const { data } = await api.post('/api/cliente', { ...form, nome: form.nome.toUpperCase(), aceita_marketing: aceitaMarketing })
             const limpo = form.cpf.replace(/\D/g, '')
             onCadastrado({ cliente: { id: data.id, nome: form.nome, cpf: limpo }, partida: null })
         } catch (err) {
@@ -173,7 +155,7 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
                 </div>
                 <div className={styles.campo}>
                     <label>Nome completo *</label>
-                    <input name='nome' value={form.nome} onChange={handleChange} autoComplete='off' />
+                    <input name='nome' value={form.nome} onChange={handleChange} autoComplete='off' style={{ textTransform: 'uppercase' }} />
                 </div>
                 <div className={styles.campo}>
                     <label>Telefone *</label>
