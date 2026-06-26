@@ -144,6 +144,18 @@ function TelaQuiz({ nomeParticipante, clienteId, onConcluido, playBotao, modoTes
         }
     }
 
+    const pergunta = perguntas[indice]
+
+    // useMemo deve vir antes de qualquer early return
+    const respostasEmbaralhadas = useMemo(() => {
+        if (!pergunta) return []
+        const comIdx = pergunta.respostas.map((r, i) => ({ ...r, _origIdx: i }))
+        const ultima = comIdx.find(r => r.isUltima)
+        const outras = comIdx.filter(r => !r.isUltima).sort(() => Math.random() - 0.5)
+        return ultima ? [...outras, ultima] : outras
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [indice, perguntas.length])
+
     if (carregando) {
         return (
             <div className={`${styles.tela} ${styles.telaQuiz}`}>
@@ -163,17 +175,6 @@ function TelaQuiz({ nomeParticipante, clienteId, onConcluido, playBotao, modoTes
             </div>
         )
     }
-
-    const pergunta = perguntas[indice]
-    // Embaralha respostas uma vez por pergunta; ultima_resposta sempre fica por último
-    const respostasEmbaralhadas = useMemo(() => {
-        if (!pergunta) return []
-        const comIdx = pergunta.respostas.map((r, i) => ({ ...r, _origIdx: i }))
-        const ultima = comIdx.find(r => r.isUltima)
-        const outras = comIdx.filter(r => !r.isUltima).sort(() => Math.random() - 0.5)
-        return ultima ? [...outras, ultima] : outras
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [indice, perguntas.length])
 
     return (
         <div className={`${styles.tela} ${styles.telaQuiz}`}>

@@ -418,7 +418,7 @@ function TabelaClientes({ clientes, onAtualizar }) {
                 <thead>
                     <tr>
                         <th>Nome</th><th>CPF</th><th>Telefone</th><th>Cadastro</th>
-                        <th>Status</th><th>Código</th><th>Palpite</th><th>Prêmio</th><th>Jogou em</th><th>Entregue em</th><th></th>
+                        <th>Status</th><th>Código</th><th>Palpite</th><th>Prêmio</th><th>Jogou em</th><th>Entregue em</th><th title='Aceita receber notícias'>Mkt</th><th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -449,6 +449,11 @@ function TabelaClientes({ clientes, onAtualizar }) {
                                 <td className={styles.mono}>{c.jogado_em ?? '—'}</td>
                                 <td className={styles.mono}>{c.entregue_em ?? '—'}</td>
                                 <td className={styles.centro}>
+                                    <span style={{ color: c.aceita_marketing ? '#58A561' : '#bbb', fontWeight: 700 }}>
+                                        {c.aceita_marketing ? '✓' : '—'}
+                                    </span>
+                                </td>
+                                <td className={styles.centro}>
                                     {c.email && ['premio_disponivel', 'premio_entregue'].includes(c.status) && (
                                         <button
                                             className={styles.btnEmail}
@@ -467,7 +472,7 @@ function TabelaClientes({ clientes, onAtualizar }) {
                         )
                     })}
                     {clientes.length === 0 && (
-                        <tr><td colSpan={11} className={styles.vazio}>Nenhum cadastro ainda.</td></tr>
+                        <tr><td colSpan={12} className={styles.vazio}>Nenhum cadastro ainda.</td></tr>
                     )}
                 </tbody>
             </table>

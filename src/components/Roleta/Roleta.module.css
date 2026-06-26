@@ -9,11 +9,11 @@
 /* ─── Roda ─────────────────────────────────────────────────── */
 .circle {
     position: absolute;
-    left: 50vw;
+    left: 50%;
     top: 52vh;
     transform: translate(-50%, -50%);
-    height: 88vw;
-    width: 88vw;
+    height: min(88vw, 49.5vh);
+    width: min(88vw, 49.5vh);
     border-radius: 50%;
 }
 
@@ -21,13 +21,13 @@
 .ponteiro {
     position: absolute;
     left: 50%;
-    top: calc(52vh - 44vw - 1.5vh);
+    top: calc(52vh - min(44vw, 24.75vh) - 1.5vh);
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 2.5vw solid transparent;
-    border-right: 2.5vw solid transparent;
-    border-top: 5vw solid white;
+    border-left: min(2.5vw, 1.4vh) solid transparent;
+    border-right: min(2.5vw, 1.4vh) solid transparent;
+    border-top: min(5vw, 2.8vh) solid white;
     z-index: 10;
     filter: drop-shadow(0 0.3vh 0.6vh rgba(0,0,0,0.5));
 }
@@ -35,15 +35,15 @@
 /* ─── Centro ────────────────────────────────────────────────── */
 .centro {
     position: absolute;
-    left: 50vw;
+    left: 50%;
     top: 52vh;
     transform: translate(-50%, -50%);
-    height: 5vw;
-    width: 5vw;
+    height: min(5vw, 2.8vh);
+    width: min(5vw, 2.8vh);
     border-radius: 50%;
     background: radial-gradient(circle, #fff 30%, #ccc 100%);
     z-index: 5;
-    box-shadow: 0 0 0 0.5vw rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 min(0.5vw, 0.28vh) rgba(255,255,255,0.3);
 }
 
 /* ─── Labels dos setores ────────────────────────────────────── */
@@ -54,7 +54,7 @@
     align-items: center;
     z-index: 2;
     pointer-events: none;
-    width: 14vw;
+    width: min(14vw, 7.9vh);
     text-align: center;
 }
 

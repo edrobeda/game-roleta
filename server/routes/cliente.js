@@ -6,7 +6,7 @@ const TENANT_ID = parseInt(process.env.TENANT_ID || '2')
 
 // POST /api/cliente — cadastrar novo participante
 router.post('/', async (req, res) => {
-    const { nome, cpf, telefone, email, perfil } = req.body
+    const { nome, cpf, telefone, email, perfil, aceita_marketing } = req.body
 
     if (!nome || !cpf) {
         return res.status(400).json({ erro: 'Nome e CPF são obrigatórios.' })
@@ -48,9 +48,9 @@ router.post('/', async (req, res) => {
         }
 
         const result = await pool.query(
-            `INSERT INTO clientes (nome, cpf, email, perfil, telefone, tenant_id)
-             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-            [nome, cpfLimpo, email || '', perfil || '', telefone ? telefone.replace(/\D/g, '') : null, TENANT_ID]
+            `INSERT INTO clientes (nome, cpf, email, perfil, telefone, tenant_id, aceita_marketing)
+             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+            [nome, cpfLimpo, email || null, perfil || '', telefone ? telefone.replace(/\D/g, '') : null, TENANT_ID, aceita_marketing === true]
         )
         res.status(201).json({ id: result.rows[0].id })
     } catch (err) {

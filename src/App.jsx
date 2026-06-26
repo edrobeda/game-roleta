@@ -137,10 +137,9 @@ function TelaErro({ onRetry }) {
 
 export default function App() {
     const location = useLocation()
+    const isLgpd = location.pathname === '/lgpd'
     const [status, setStatus] = useState('carregando')
     const [motivo, setMotivo] = useState(null)
-
-    if (location.pathname === '/lgpd') return <LGPD />
 
     const verificarStatus = useCallback(async () => {
         try {
@@ -157,10 +156,13 @@ export default function App() {
     }, [])
 
     useEffect(() => {
+        if (isLgpd) return
         verificarStatus()
         const id = setInterval(verificarStatus, POLL_MS)
         return () => clearInterval(id)
-    }, [verificarStatus])
+    }, [verificarStatus, isLgpd])
+
+    if (isLgpd) return <LGPD />
 
     if (status === 'carregando') return <TelaCarregando />
     if (status === 'revogado')   return <TelaRevogada />

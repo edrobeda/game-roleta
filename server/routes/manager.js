@@ -48,7 +48,7 @@ router.get('/clientes', auth, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT
-                c.id, c.nome, c.cpf, c.telefone, c.email, c.perfil,
+                c.id, c.nome, c.cpf, c.telefone, c.email, c.perfil, c.aceita_marketing,
                 TO_CHAR(c.criado_em, 'DD/MM/YYYY HH24:MI') AS criado_em,
                 p.status,
                 p.codigo,

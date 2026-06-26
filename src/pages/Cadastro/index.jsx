@@ -127,6 +127,7 @@ function TelaIdentificacao({ onEncontrado, onNaoEncontrado }) {
 function TelaCadastro({ cpfInicial, onCadastrado }) {
     const [form, setForm]             = useState({ nome: '', cpf: cpfInicial || '', telefone: '', email: '' })
     const [lgpd, setLgpd]             = useState(false)
+    const [aceitaMarketing, setMarketing] = useState(false)
     const [erro, setErro]             = useState('')
     const [carregando, setCarregando] = useState(false)
 
@@ -151,7 +152,7 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
         setErro('')
         setCarregando(true)
         try {
-            const { data } = await api.post('/api/cliente', form)
+            const { data } = await api.post('/api/cliente', { ...form, aceita_marketing: aceitaMarketing })
             const limpo = form.cpf.replace(/\D/g, '')
             onCadastrado({ cliente: { id: data.id, nome: form.nome, cpf: limpo }, partida: null })
         } catch (err) {
@@ -189,6 +190,10 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
                         Li e aceito a{' '}
                         <a href='/lgpd' target='_blank' rel='noopener noreferrer'>Política de Privacidade</a>
                     </span>
+                </label>
+                <label className={styles.checkLgpd}>
+                    <input type='checkbox' checked={aceitaMarketing} onChange={e => setMarketing(e.target.checked)} />
+                    <span>Aceito receber informações e notícias seguindo as normas LGPD.</span>
                 </label>
                 {erro && <p className={styles.erro}>{erro}</p>}
                 <button type='submit' className={styles.botao} disabled={carregando}>

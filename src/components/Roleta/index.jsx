@@ -83,7 +83,7 @@ export default function Roleta({ premios, onPremioSorteado, onGirar, premioForca
         return <div style={{ color: 'white', textAlign: 'center', paddingTop: '40vh', fontSize: '2.2vh' }}>Carregando prêmios...</div>
     }
 
-    const labelRadius = 31
+    const labelRadius = 35.22 // % of circle width (31/88 * 100)
 
     return (
         <div className={styles.roletaPlace}>
@@ -105,8 +105,8 @@ export default function Roleta({ premios, onPremioSorteado, onGirar, premioForca
                             key={i}
                             className={styles.setorLabel}
                             style={{
-                                left: `calc(50% + ${x}vw)`,
-                                top: `calc(50% + ${y}vw)`,
+                                left: `calc(50% + ${x.toFixed(2)}%)`,
+                                top: `calc(50% + ${y.toFixed(2)}%)`,
                                 transform: `translate(-50%, -50%) rotate(${rotTexto}deg)`,
                             }}
                         >
