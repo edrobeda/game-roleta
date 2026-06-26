@@ -5,7 +5,8 @@ import ModalPremio from '../../components/ModalPremio'
 import useSom from '../../hooks/useSom'
 import styles from './Jogo.module.css'
 
-const TITLE = import.meta.env.VITE_GAME_TITLE || 'Game Roleta'
+const TITLE        = import.meta.env.VITE_GAME_TITLE || 'Game Roleta'
+const TITLE_DISPLAY = 'QUIZ ' + TITLE.replace(/^quiz\s*/i, '').toUpperCase()
 
 function formatarCpf(v) {
     return v.replace(/\D/g, '').slice(0, 11)
@@ -20,7 +21,7 @@ function TelaStart({ onAvancar, playBotao }) {
         <div className={`${styles.tela} ${styles.telaStart}`}>
             <div className={styles.overlay}>
                 <div className={styles.logoArea}>
-                    <h1 className={styles.logoTexto}>{TITLE}</h1>
+                    <h1 className={styles.logoTexto}>{TITLE_DISPLAY}</h1>
                 </div>
                 <p className={styles.textoInicio}>Participe e concorra a prêmios</p>
                 <div className={styles.botaoArea}>
