@@ -103,8 +103,8 @@ function TelaIdentificacao({ onEncontrado, onNaoEncontrado }) {
 
     return (
         <Layout>
-            <h1 className={styles.titulo}>Bem-vindo!</h1>
-            <p className={styles.subtitulo}>Digite seu CPF para participar</p>
+            <h1 className={styles.titulo}>Vamos lá!</h1>
+            <p className={styles.subtitulo}>Digite seu CPF para continuar</p>
             <form onSubmit={handleContinuar} className={styles.form}>
                 <div className={styles.campo}>
                     <label htmlFor='cpf'>CPF</label>
@@ -163,7 +163,6 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
 
     return (
         <Layout>
-            <h1 className={styles.titulo}>Cadastro</h1>
             <p className={styles.subtitulo}>Preencha seus dados para participar</p>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.campo}>
@@ -222,14 +221,13 @@ function TelaStatus({ cpf, nomeInicial, partidaInicial }) {
         return (
             <Layout>
                 <div className={styles.statusWrap}>
-                    <div className={styles.statusIcon}>
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
+                    <div className={styles.checkCircle}>
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
                         </svg>
                     </div>
                     <h2 className={styles.statusTitulo}>Cadastro realizado!</h2>
-                    <p className={styles.statusMsg}>Aguarde ser chamado pelo operador para jogar.</p>
+                    <p className={styles.statusMsg}>Insira seu CPF no totem para participar</p>
                     <div className={styles.cpfDestaque}>
                         {cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')}
                     </div>
@@ -268,13 +266,7 @@ function TelaStatus({ cpf, nomeInicial, partidaInicial }) {
         return (
             <Layout>
                 <div className={styles.statusWrap}>
-                    <div className={styles.checkCircle}>
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
-                    </div>
-                    <h2 className={styles.statusTitulo}>Parabéns!</h2>
-                    <p className={styles.statusMsg}>Você ganhou na roleta:</p>
+                    <p className={styles.voceGanhou}>Você ganhou</p>
                     <p className={styles.premioNome}>{partida.premio_nome}</p>
                     {partida.premio_sub && <p className={styles.premioSub}>{partida.premio_sub}</p>}
                     {partida.codigo && (

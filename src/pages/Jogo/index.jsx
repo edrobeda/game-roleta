@@ -22,7 +22,7 @@ function TelaStart({ onAvancar, playBotao }) {
                 <div className={styles.logoArea}>
                     <h1 className={styles.logoTexto}>{TITLE}</h1>
                 </div>
-                <p className={styles.textoInicio}>Responda e concorra a prêmios!</p>
+                <p className={styles.textoInicio}>Participe e concorra a prêmios</p>
                 <div className={styles.botaoArea}>
                     <button className={styles.btnGame} onClick={() => { playBotao(); onAvancar() }}>
                         VAMOS LÁ
