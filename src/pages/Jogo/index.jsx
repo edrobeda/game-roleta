@@ -22,7 +22,7 @@ function TelaStart({ onAvancar, playBotao }) {
         <div className={`${styles.tela} ${styles.telaStart}`}>
             <div className={styles.overlay}>
                 <div className={styles.logoArea}>
-                    <h1 className={styles.logoTexto}>{TITLE_DISPLAY}</h1>
+                    <h1 className={styles.logoTexto}>QUIZ {TITLE_DISPLAY}</h1>
                 </div>
                 <p className={styles.textoInicio}>Responda e<br />concorra a<br />prêmios!</p>
                 <div className={styles.botaoArea}>

@@ -34,7 +34,7 @@ function Layout({ children }) {
 function TelaBoasVindas({ onAvancar }) {
     return (
         <div className={styles.telaHome}>
-            <h1 className={styles.welcomeTitle}>Quiz {TITLE.toUpperCase()}</h1>
+            <h1 className={styles.welcomeTitle}>QUIZ {TITLE.toUpperCase()}</h1>
             <p className={styles.welcomeSub}>Participe e concorra a prêmios</p>
             <button className={`${styles.botao} ${styles.welcomeBtn}`} onClick={onAvancar}>
                 QUERO PARTICIPAR

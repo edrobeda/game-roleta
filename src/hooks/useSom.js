@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 
 const SONS = {
     roleta:       '/sounds/sfx_roleta.mp3',
@@ -10,22 +10,35 @@ const SONS = {
 }
 
 export default function useSom() {
-    const audioRef = useRef(null)
+    const currentRef = useRef(null)
+    const cacheRef   = useRef({})
+
+    useEffect(() => {
+        const cache = {}
+        Object.entries(SONS).forEach(([key, src]) => {
+            const a = new Audio(src)
+            a.preload = 'auto'
+            cache[key] = a
+        })
+        cacheRef.current = cache
+    }, [])
 
     const play = useCallback((nome) => {
-        const src = SONS[nome]
-        if (!src) return
-        if (audioRef.current) {
-            audioRef.current.pause()
+        const audio = cacheRef.current[nome]
+        if (!audio) return
+        if (currentRef.current) {
+            currentRef.current.pause()
+            currentRef.current.currentTime = 0
         }
-        audioRef.current = new Audio(src)
-        audioRef.current.play().catch(() => {}) // ignora bloqueio de autoplay
+        audio.currentTime = 0
+        audio.play().catch(() => {})
+        currentRef.current = audio
     }, [])
 
     const stop = useCallback(() => {
-        if (audioRef.current) {
-            audioRef.current.pause()
-            audioRef.current.currentTime = 0
+        if (currentRef.current) {
+            currentRef.current.pause()
+            currentRef.current.currentTime = 0
         }
     }, [])
 
