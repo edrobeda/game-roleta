@@ -8,8 +8,8 @@ const TENANT_ID = parseInt(process.env.TENANT_ID || '2')
 router.post('/', async (req, res) => {
     const { nome, cpf, telefone, email, perfil, aceita_marketing } = req.body
 
-    if (!nome || !cpf) {
-        return res.status(400).json({ erro: 'Nome e CPF são obrigatórios.' })
+    if (!nome || !cpf || !email || !email.trim()) {
+        return res.status(400).json({ erro: 'Nome, CPF e e-mail são obrigatórios.' })
     }
 
     const cpfLimpo = cpf.replace(/\D/g, '')
@@ -26,14 +26,12 @@ router.post('/', async (req, res) => {
             return res.status(409).json({ erro: 'CPF já cadastrado.' })
         }
 
-        if (email && email.trim() !== '') {
-            const dupEmail = await pool.query(
-                'SELECT id FROM clientes WHERE email = $1 AND tenant_id = $2',
-                [email.trim(), TENANT_ID]
-            )
-            if (dupEmail.rows.length > 0) {
-                return res.status(409).json({ erro: 'E-mail já cadastrado neste jogo.' })
-            }
+        const dupEmail = await pool.query(
+            'SELECT id FROM clientes WHERE email = $1 AND tenant_id = $2',
+            [email.trim(), TENANT_ID]
+        )
+        if (dupEmail.rows.length > 0) {
+            return res.status(409).json({ erro: 'E-mail já cadastrado neste jogo.' })
         }
 
         if (telefone && telefone.replace(/\D/g, '') !== '') {

@@ -109,8 +109,8 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
 
     async function handleSubmit(e) {
         e.preventDefault()
-        if (!form.nome || !form.cpf || !form.telefone) {
-            setErro('Nome, CPF e telefone são obrigatórios.')
+        if (!form.nome || !form.cpf || !form.telefone || !form.email) {
+            setErro('Nome, CPF, telefone e e-mail são obrigatórios.')
             return
         }
         if (!lgpd) {
@@ -149,7 +149,7 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
                         placeholder='(00) 00000-0000' inputMode='tel' autoComplete='off' />
                 </div>
                 <div className={styles.campo}>
-                    <label>E-mail <span className={styles.opcional}>(opcional)</span></label>
+                    <label>E-mail *</label>
                     <input name='email' type='email' value={form.email} onChange={handleChange} autoComplete='off' />
                 </div>
                 <label className={styles.checkLgpd}>
