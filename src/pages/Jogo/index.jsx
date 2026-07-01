@@ -9,13 +9,6 @@ const TITLE            = import.meta.env.VITE_GAME_TITLE || 'Game Roleta'
 const TITLE_DISPLAY    = TITLE.toUpperCase()
 const QUIZ_MIN_ACERTOS = parseInt(import.meta.env.VITE_QUIZ_MIN_ACERTOS || '3')
 
-function formatarCpf(v) {
-    return v.replace(/\D/g, '').slice(0, 11)
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-}
-
 // ─── Etapa 1: Start ───────────────────────────────────────────
 function TelaStart({ onAvancar, playBotao }) {
     return (
@@ -43,18 +36,18 @@ function TelaIdentificacao({ onValidado, playBotao }) {
 
     async function handleContinuar() {
         setErro('')
-        const limpo = cpf.replace(/\D/g, '')
-        if (limpo.length !== 11) { setErro('CPF inválido.'); return }
+        const documento = cpf.trim()
+        if (!documento) { setErro('Informe seu CPF ou documento.'); return }
         playBotao()
 
-        if (limpo === '55555555555') {
+        if (documento.replace(/\D/g, '') === '55555555555') {
             onValidado({ id: null, nome: 'Dev Teste' })
             return
         }
 
         setCarregando(true)
         try {
-            const { data } = await api.post('/api/cliente/validar', { cpf })
+            const { data } = await api.post('/api/cliente/validar', { cpf: documento })
             onValidado(data)
         } catch (err) {
             const status = err.response?.status
@@ -73,16 +66,15 @@ function TelaIdentificacao({ onValidado, playBotao }) {
     return (
         <div className={`${styles.tela} ${styles.telaApresentacao}`}>
             <div className={styles.overlay}>
-                <p className={styles.textoApresentacao}>Insira seu CPF para começar</p>
+                <p className={styles.textoApresentacao}>Insira seu CPF ou documento para começar</p>
                 <div className={styles.formArea}>
                     <input
                         className={styles.inputGame}
                         type='text'
-                        placeholder='000.000.000-00'
+                        placeholder='CPF ou documento'
                         value={cpf}
-                        onChange={e => setCpf(formatarCpf(e.target.value))}
+                        onChange={e => setCpf(e.target.value)}
                         autoComplete='off'
-                        inputMode='numeric'
                         autoFocus
                     />
                 </div>

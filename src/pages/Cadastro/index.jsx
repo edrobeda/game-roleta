@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { QRCode } from 'react-qr-code'
 import api from '../../services/api'
 import styles from './Cadastro.module.css'
@@ -17,6 +18,20 @@ function formatarTel(v) {
     return v.replace(/\D/g, '').slice(0, 11)
         .replace(/(\d{2})(\d)/, '($1) $2')
         .replace(/(\d{5})(\d{1,4})$/, '$1-$2')
+}
+
+// ─── Validação de CPF (dígitos verificadores) ─────────────
+function validarCpf(cpf) {
+    if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false
+    const calcDigito = (base) => {
+        let soma = 0
+        for (let i = 0; i < base.length; i++) soma += Number(base[i]) * (base.length + 1 - i)
+        const resto = (soma * 10) % 11
+        return resto === 10 ? 0 : resto
+    }
+    const d1 = calcDigito(cpf.slice(0, 9))
+    const d2 = calcDigito(cpf.slice(0, 9) + d1)
+    return cpf === cpf.slice(0, 9) + String(d1) + String(d2)
 }
 
 // ─── Layout compartilhado ─────────────────────────────────
@@ -44,23 +59,29 @@ function TelaBoasVindas({ onAvancar }) {
 }
 
 // ─── Tela 1: Identificação por CPF ────────────────────────
-function TelaIdentificacao({ onEncontrado, onNaoEncontrado }) {
+function TelaIdentificacao({ onEncontrado, onNaoEncontrado, foreign }) {
     const [cpf, setCpf]           = useState('')
     const [buscando, setBuscando] = useState(false)
     const [erro, setErro]         = useState('')
 
     async function handleContinuar(e) {
         e.preventDefault()
-        const limpo = cpf.replace(/\D/g, '')
-        if (limpo.length !== 11) { setErro('CPF inválido.'); return }
+        let documento
+        if (foreign) {
+            documento = cpf.trim()
+            if (!documento) { setErro('Documento obrigatório.'); return }
+        } else {
+            documento = cpf.replace(/\D/g, '')
+            if (!validarCpf(documento)) { setErro('CPF inválido.'); return }
+        }
         setErro('')
         setBuscando(true)
         try {
-            const { data } = await api.get(`/api/cliente/status/${limpo}`)
+            const { data } = await api.get(`/api/cliente/status/${encodeURIComponent(documento)}`)
             onEncontrado(data)
         } catch (err) {
             if (err.response?.status === 404) {
-                onNaoEncontrado(cpf)
+                onNaoEncontrado(foreign ? documento : cpf)
             } else {
                 setErro(err.response?.data?.erro || 'Erro ao verificar.')
             }
@@ -72,14 +93,15 @@ function TelaIdentificacao({ onEncontrado, onNaoEncontrado }) {
     return (
         <Layout>
             <h1 className={styles.titulo}>Vamos lá!</h1>
-            <p className={styles.subtitulo}>Digite seu CPF para continuar</p>
+            <p className={styles.subtitulo}>Digite seu {foreign ? 'documento' : 'CPF'} para continuar</p>
             <form onSubmit={handleContinuar} className={styles.form}>
                 <div className={styles.campo}>
-                    <label htmlFor='cpf'>CPF</label>
+                    <label htmlFor='cpf'>{foreign ? 'Documento' : 'CPF'}</label>
                     <input
                         id='cpf' type='text' value={cpf}
-                        onChange={e => setCpf(formatarCpf(e.target.value))}
-                        placeholder='000.000.000-00' autoComplete='off' inputMode='numeric' autoFocus
+                        onChange={e => setCpf(foreign ? e.target.value : formatarCpf(e.target.value))}
+                        placeholder={foreign ? 'Documento' : '000.000.000-00'} autoComplete='off'
+                        inputMode={foreign ? 'text' : 'numeric'} autoFocus
                     />
                 </div>
                 {erro && <p className={styles.erro}>{erro}</p>}
@@ -92,7 +114,7 @@ function TelaIdentificacao({ onEncontrado, onNaoEncontrado }) {
 }
 
 // ─── Tela 2: Cadastro ─────────────────────────────────────
-function TelaCadastro({ cpfInicial, onCadastrado }) {
+function TelaCadastro({ cpfInicial, onCadastrado, foreign }) {
     const [form, setForm]             = useState({ nome: '', cpf: cpfInicial || '', telefone: '', email: '' })
     const [lgpd, setLgpd]             = useState(false)
     const [aceitaMarketing, setMarketing] = useState(false)
@@ -103,14 +125,21 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
         const { name, value } = e.target
         setForm(prev => ({
             ...prev,
-            [name]: name === 'cpf' ? formatarCpf(value) : name === 'telefone' ? formatarTel(value) : value,
+            [name]: foreign
+                ? value
+                : name === 'cpf' ? formatarCpf(value) : name === 'telefone' ? formatarTel(value) : value,
         }))
     }
 
     async function handleSubmit(e) {
         e.preventDefault()
         if (!form.nome || !form.cpf || !form.telefone || !form.email) {
-            setErro('Nome, CPF, telefone e e-mail são obrigatórios.')
+            setErro(foreign ? 'Nome, documento, telefone e e-mail são obrigatórios.' : 'Nome, CPF, telefone e e-mail são obrigatórios.')
+            return
+        }
+        const documento = foreign ? form.cpf.trim() : form.cpf.replace(/\D/g, '')
+        if (!foreign && !validarCpf(documento)) {
+            setErro('CPF inválido.')
             return
         }
         if (!lgpd) {
@@ -119,10 +148,16 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
         }
         setErro('')
         setCarregando(true)
+        const nomeFinal = form.nome.toUpperCase() + (foreign ? ' (Estrangeiro)' : '')
         try {
-            const { data } = await api.post('/api/cliente', { ...form, nome: form.nome.toUpperCase(), aceita_marketing: aceitaMarketing })
-            const limpo = form.cpf.replace(/\D/g, '')
-            onCadastrado({ cliente: { id: data.id, nome: form.nome, cpf: limpo }, partida: null })
+            const { data } = await api.post('/api/cliente', {
+                ...form,
+                cpf: documento,
+                nome: nomeFinal,
+                aceita_marketing: aceitaMarketing,
+                foreign,
+            })
+            onCadastrado({ cliente: { id: data.id, nome: nomeFinal, cpf: documento }, partida: null })
         } catch (err) {
             setErro(err.response?.data?.erro || 'Erro ao cadastrar.')
         } finally {
@@ -135,9 +170,10 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
             <p className={styles.subtitulo}>Preencha seus dados para participar</p>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.campo}>
-                    <label>CPF *</label>
+                    <label>{foreign ? 'Documento *' : 'CPF *'}</label>
                     <input name='cpf' value={form.cpf} onChange={handleChange}
-                        placeholder='000.000.000-00' inputMode='numeric' autoComplete='off' />
+                        placeholder={foreign ? 'Documento' : '000.000.000-00'}
+                        inputMode={foreign ? 'text' : 'numeric'} autoComplete='off' />
                 </div>
                 <div className={styles.campo}>
                     <label>Nome completo *</label>
@@ -146,7 +182,7 @@ function TelaCadastro({ cpfInicial, onCadastrado }) {
                 <div className={styles.campo}>
                     <label>Telefone *</label>
                     <input name='telefone' value={form.telefone} onChange={handleChange}
-                        placeholder='(00) 00000-0000' inputMode='tel' autoComplete='off' />
+                        placeholder={foreign ? 'Telefone' : '(00) 00000-0000'} inputMode={foreign ? 'text' : 'tel'} autoComplete='off' />
                 </div>
                 <div className={styles.campo}>
                     <label>E-mail *</label>
@@ -180,7 +216,7 @@ function TelaStatus({ cpf, nomeInicial, partidaInicial }) {
     useEffect(() => {
         const id = setInterval(async () => {
             try {
-                const { data } = await api.get(`/api/cliente/status/${cpf}`)
+                const { data } = await api.get(`/api/cliente/status/${encodeURIComponent(cpf)}`)
                 setPartida(data.partida)
                 setNome(data.cliente.nome)
             } catch {}
@@ -281,6 +317,8 @@ function TelaStatus({ cpf, nomeInicial, partidaInicial }) {
 
 // ─── Página principal ─────────────────────────────────────
 export default function Cadastro() {
+    const [searchParams]           = useSearchParams()
+    const foreign                  = searchParams.get('cad') === 'foreign'
     const [tela, setTela]          = useState('boasvindas')
     const [cpfPendente, setCpf]    = useState('')
     const [statusDados, setStatus] = useState(null)
@@ -303,8 +341,8 @@ export default function Cadastro() {
     }
 
     if (tela === 'boasvindas')    return <TelaBoasVindas onAvancar={() => setTela('identificacao')} />
-    if (tela === 'identificacao') return <TelaIdentificacao onEncontrado={handleEncontrado} onNaoEncontrado={handleNaoEncontrado} />
-    if (tela === 'cadastro')      return <TelaCadastro cpfInicial={cpfPendente} onCadastrado={handleCadastrado} />
+    if (tela === 'identificacao') return <TelaIdentificacao onEncontrado={handleEncontrado} onNaoEncontrado={handleNaoEncontrado} foreign={foreign} />
+    if (tela === 'cadastro')      return <TelaCadastro cpfInicial={cpfPendente} onCadastrado={handleCadastrado} foreign={foreign} />
     if (tela === 'status')        return <TelaStatus cpf={statusDados.cliente.cpf} nomeInicial={statusDados.cliente.nome} partidaInicial={statusDados.partida} />
     return null
 }
